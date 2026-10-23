@@ -16,6 +16,8 @@ pub struct Hub {
     pub owed_total: u64,
     pub collection_count: u64,
     pub bale_count: u64,
+    /// First collection index not yet assigned to a bale.
+    pub next_unbaled: u64,
     pub bump: u8,
     pub escrow_bump: u8,
 }
@@ -58,7 +60,8 @@ pub struct PhotoSeal {
     pub collection: Pubkey,
 }
 
-/// Bags shipped from a hub to a recycler; covers collections [first_collection, last_collection].
+/// Weight shipped from a hub to a recycler. Holds the bags recorded since the previous bale,
+/// collections [first_collection, end_collection); the range is empty when it ships leftover weight.
 #[account]
 #[derive(InitSpace)]
 pub struct Bale {
@@ -67,7 +70,7 @@ pub struct Bale {
     pub recycler: Pubkey,
     pub weight_g: u64,
     pub first_collection: u64,
-    pub last_collection: u64,
+    pub end_collection: u64,
     pub intake_confirmed: bool,
     pub created_at: i64,
 }
@@ -80,6 +83,7 @@ pub struct CreditBatch {
     pub recycler: Pubkey,
     pub accepted_g: u64,
     pub claimed_g: u64,
+    pub claim_count: u64,
     pub created_at: i64,
 }
 
@@ -88,6 +92,7 @@ pub struct CreditBatch {
 #[derive(InitSpace)]
 pub struct Claim {
     pub batch: Pubkey,
+    pub index: u64,
     pub brand: Pubkey,
     pub weight_g: u64,
     pub created_at: i64,

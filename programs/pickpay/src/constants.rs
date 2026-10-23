@@ -16,4 +16,13 @@ pub const PICKER_SEED: &[u8] = b"picker";
 pub const PHOTO_SEED: &[u8] = b"photo";
 
 #[constant]
+pub const BALE_SEED: &[u8] = b"bale";
+
+#[constant]
+pub const CREDITS_SEED: &[u8] = b"credits";
+
+#[constant]
+pub const CLAIM_SEED: &[u8] = b"claim";
+
+#[constant]
 pub const MAX_CONTAMINATION_BPS: u16 = 10_000;

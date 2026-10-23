@@ -41,6 +41,7 @@ pub fn handle_init_hub(ctx: Context<InitHub>) -> Result<()> {
         owed_total: 0,
         collection_count: 0,
         bale_count: 0,
+        next_unbaled: 0,
         bump: ctx.bumps.hub,
         escrow_bump: ctx.bumps.escrow,
     });

@@ -14,6 +14,8 @@ pub enum ErrorCode {
     AlreadyClaimed,
     #[msg("Picker token account is missing or uses the wrong mint")]
     WrongMint,
+    #[msg("Only the bale's named recycler can confirm intake")]
+    WrongRecycler,
     #[msg("Arithmetic overflow")]
     Overflow,
 }

@@ -1,122 +1,15 @@
+mod common;
+
 use {
-    anchor_lang::{
-        prelude::Pubkey, solana_program::instruction::Instruction, system_program,
-        AccountDeserialize, InstructionData, ToAccountMetas,
-    },
-    litesvm::LiteSVM,
-    litesvm_token::{get_spl_account, spl_token, CreateAssociatedTokenAccount, CreateMint, MintTo},
+    common::*,
+    litesvm_token::{get_spl_account, spl_token, CreateAssociatedTokenAccount, CreateMint},
     pickpay::{
-        accounts, instruction, state::{Collection, Hub, Picker, Polymer}, RecordCollectionArgs,
-        COLLECTION_SEED, ESCROW_SEED, HUB_SEED, PHOTO_SEED, PICKER_SEED,
+        state::{Collection, Hub, Picker, Polymer},
+        COLLECTION_SEED, PICKER_SEED,
     },
     solana_keypair::Keypair,
-    solana_message::{Message, VersionedMessage},
     solana_signer::Signer,
-    solana_transaction::versioned::VersionedTransaction,
 };
-
-const FLOAT: u64 = 10_000_000_000; // 10,000 tUSDC at 6 decimals
-
-struct Ctx {
-    svm: LiteSVM,
-    hub_authority: Keypair,
-    mint: Pubkey,
-    hub: Pubkey,
-    escrow: Pubkey,
-}
-
-fn pda(seeds: &[&[u8]]) -> Pubkey {
-    Pubkey::find_program_address(seeds, &pickpay::id()).0
-}
-
-fn send(svm: &mut LiteSVM, ix: Instruction, signer: &Keypair) -> Result<(), String> {
-    let msg = Message::new_with_blockhash(&[ix], Some(&signer.pubkey()), &svm.latest_blockhash());
-    let tx = VersionedTransaction::try_new(VersionedMessage::Legacy(msg), &[signer]).unwrap();
-    let res = svm.send_transaction(tx).map(|_| ()).map_err(|e| format!("{:?} {:?}", e.err, e.meta.logs));
-    svm.expire_blockhash();
-    res
-}
-
-fn account<T: AccountDeserialize>(svm: &LiteSVM, key: &Pubkey) -> T {
-    T::try_deserialize(&mut svm.get_account(key).unwrap().data.as_slice()).unwrap()
-}
-
-fn token_balance(svm: &LiteSVM, key: &Pubkey) -> u64 {
-    get_spl_account::<spl_token::state::Account>(svm, key).unwrap().amount
-}
-
-/// A hub with an initialised escrow holding FLOAT tUSDC.
-fn setup() -> Ctx {
-    let mut svm = LiteSVM::new();
-    svm.add_program(pickpay::id(), include_bytes!(concat!(env!("CARGO_TARGET_TMPDIR"), "/../deploy/pickpay.so")))
-        .unwrap();
-    let hub_authority = Keypair::new();
-    svm.airdrop(&hub_authority.pubkey(), 10_000_000_000).unwrap();
-    let mint = CreateMint::new(&mut svm, &hub_authority).decimals(6).send().unwrap();
-
-    let hub = pda(&[HUB_SEED, hub_authority.pubkey().as_ref()]);
-    let escrow = pda(&[ESCROW_SEED, hub.as_ref()]);
-    let ix = Instruction::new_with_bytes(
-        pickpay::id(),
-        &instruction::InitHub {}.data(),
-        accounts::InitHub {
-            authority: hub_authority.pubkey(),
-            hub,
-            mint,
-            escrow,
-            token_program: spl_token::ID,
-            system_program: system_program::ID,
-        }
-        .to_account_metas(None),
-    );
-    send(&mut svm, ix, &hub_authority).unwrap();
-    MintTo::new(&mut svm, &hub_authority, &mint, &escrow, FLOAT).send().unwrap();
-    Ctx { svm, hub_authority, mint, hub, escrow }
-}
-
-fn args(picker: u8, photo: u8, weight_g: u64, amount: u64) -> RecordCollectionArgs {
-    RecordCollectionArgs {
-        picker_hash: [picker; 32],
-        photo_hash: [photo; 32],
-        weight_g,
-        polymer: Polymer::Pet,
-        contamination_bps: 600,
-        amount,
-    }
-}
-
-fn record_ix(c: &Ctx, a: RecordCollectionArgs, picker_token: Option<Pubkey>) -> Instruction {
-    let hub: Hub = account(&c.svm, &c.hub);
-    Instruction::new_with_bytes(
-        pickpay::id(),
-        &instruction::RecordCollection { args: a.clone() }.data(),
-        accounts::RecordCollection {
-            authority: c.hub_authority.pubkey(),
-            hub: c.hub,
-            collection: pda(&[COLLECTION_SEED, c.hub.as_ref(), &hub.collection_count.to_le_bytes()]),
-            photo_seal: pda(&[PHOTO_SEED, a.photo_hash.as_ref()]),
-            picker: pda(&[PICKER_SEED, c.hub.as_ref(), a.picker_hash.as_ref()]),
-            mint: c.mint,
-            escrow: c.escrow,
-            picker_token,
-            token_program: spl_token::ID,
-            system_program: system_program::ID,
-        }
-        .to_account_metas(None),
-    )
-}
-
-impl Ctx {
-    fn record(&mut self, a: RecordCollectionArgs, picker_token: Option<Pubkey>) -> Result<(), String> {
-        let ix = record_ix(self, a, picker_token);
-        send(&mut self.svm, ix, &self.hub_authority)
-    }
-}
-
-fn assert_custom(res: Result<(), String>, code: u32) {
-    let err = res.expect_err("transaction should fail");
-    assert!(err.contains(&format!("Custom({code})")), "expected Custom({code}), got {err}");
-}
 
 #[test]
 fn init_hub_sets_up_escrow() {
