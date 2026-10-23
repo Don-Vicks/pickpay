@@ -66,7 +66,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 ### M3 · Day 2 (2026-10-24): Wow moment
 - [ ] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount (built and returns a signed quote; live grade on a real photo still to run once `app/.env.local` has the key)
 - [x] Hub screen: phone, weight, photo → grade → "Pay" sends `record_collection` and shows the confirmed transaction (`/hub` + `/api/collect`; Pay verified on devnet in 0.8 s)
-- [ ] Brand screen: claim credits; a second brand claiming the same credits shows the live `AlreadyClaimed` rejection
+- [x] Brand screen: claim credits; a second brand claiming the same credits shows the live `AlreadyClaimed` rejection (`/brand`; the rejected claim lands on devnet as a failed tx, error 6004)
 
 ### M4 · Day 2 (2026-10-24): Ledger and fraud (scope freeze 22:00 WAT)
 - [ ] Perceptual-hash duplicate-photo check that blocks a reused photo
