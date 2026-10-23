@@ -33,7 +33,7 @@ Brands with Extended Producer Responsibility (EPR) targets must prove they recov
 ## Run
 
 ```bash
-anchor build && cargo test          # program + LiteSVM tests
+anchor build --arch v1 && cargo test  # program + LiteSVM tests (always --arch v1)
 cd app && pnpm install && pnpm dev  # http://localhost:3000
 ```
 
@@ -43,7 +43,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 
 ### M1 · Day 1 (2026-10-23): Scaffold
 - [x] Anchor workspace and Next.js app in `app/`, both build
-- [ ] Make the template LiteSVM test pass: `add_program` fails with `InvalidAccountData` loading `pickpay.so` (likely Anchor 1.2 vs Solana CLI 2.3.13 toolchain mismatch)
+- [x] Make the template LiteSVM test pass (Anchor 1.2 defaults to SBPF v3, which LiteSVM 0.10 can't load; build with `--arch v1` on Agave 3.1.14)
 - [ ] Devnet wallets (hub, recycler, brand A, brand B) funded, plus a devnet test-USDC mint, saved by a `scripts/setup-devnet.ts`
 
 ### M2 · Day 2 (2026-10-24): Program core

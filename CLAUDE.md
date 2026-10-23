@@ -13,7 +13,7 @@ MVP first. Build nothing outside the README's `## MVP` list until every MVP box 
 
 1. Read README.md.
 2. Do the first unticked task under `## Plan`.
-3. Run it to prove it works (`anchor build && cargo test` for the program; `pnpm dev` / `pnpm build` in `app/` for the app).
+3. Run it to prove it works (`anchor build --arch v1 && cargo test` for the program, always `--arch v1` because Anchor 1.2 defaults to SBPF v3, which LiteSVM 0.10 rejects; deploy with the same build; `pnpm dev` / `pnpm build` in `app/` for the app).
 4. Tick it in README.md.
 5. Commit with a conventional message (`feat:`, `fix:`, `docs:`, `test:`).
 
