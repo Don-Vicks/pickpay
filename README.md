@@ -48,8 +48,8 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Devnet wallets (hub, recycler, brand A, brand B, picker) funded, plus a devnet test-USDC mint, saved by `scripts/setup-devnet.ts` (`pnpm setup:devnet`; addresses in `scripts/devnet.json`, keys in `.keys/`)
 
 ### M2 · Day 2 (2026-10-24): Program core
-- [ ] State accounts: Hub (collected/shipped kg, escrow), Collection, Bale, Intake/CreditBatch, Claim
-- [ ] `init_hub` and `record_collection` with an SPL transfer payout to the picker (or to a phone-hash claim account)
+- [x] State accounts: Hub (collected/shipped g, escrow), Collection, Picker (phone-hash claim balance), PhotoSeal (one per photo hash), Bale, CreditBatch, Claim
+- [x] `init_hub` and `record_collection` with an SPL transfer payout to the picker (or to a phone-hash claim account); 6 LiteSVM tests incl. duplicate photo and wrong mint
 - [ ] `ship_bale` (≤ unshipped collected kg), `confirm_intake` (recycler signer, ≤ bale kg, mints credits), `claim_credits` (single retirement)
 - [ ] LiteSVM tests: happy path, `ExceedsCollected`, `ExceedsIntake`, `AlreadyClaimed`
 - [ ] Deploy to devnet and generate the TS client into `app/`
