@@ -8,7 +8,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test src/lib/*.test.ts"
+    "test": "node --test src/lib/*.test.ts src/lib/server/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.2.0",
@@ -17,7 +17,8 @@
     "@solana/program-client-core": "8.5.0",
     "next": "15.5.4",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "sharp": "0.34.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

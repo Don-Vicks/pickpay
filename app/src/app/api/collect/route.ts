@@ -15,6 +15,8 @@ import {
   PICKPAY_PROGRAM_ADDRESS,
 } from '@/generated/pickpay'
 import { findCollectionPda, findPhotoSealPda, findPickerPda } from '@/lib/pdas'
+import { fromHex } from '@/lib/server/dhash'
+import { commitPaid, findNearDuplicate } from '@/lib/server/photo-store'
 import { pickerHash } from '@/lib/server/picker'
 import { verifyQuote } from '@/lib/server/quote-token'
 import { MINT, explorerTx, getHubSigner, rpc, sendTx } from '@/lib/server/solana'
@@ -51,6 +53,9 @@ export async function POST(req: Request) {
   if ((await rpc.getAccountInfo(photoSeal, { encoding: 'base64' }).send()).value) {
     return fail(409, 'This photo was already used for a paid bag')
   }
+  // Two near-identical photos can both hold fresh quotes; only the first one paid counts.
+  const dup = await findNearDuplicate(fromHex(quote.dHash))
+  if (dup) return fail(409, `This looks like the photo already paid for bag #${dup.collectionIndex}`)
 
   const instructions = []
   let pickerToken: Address | undefined
@@ -83,6 +88,7 @@ export async function POST(req: Request) {
   try {
     const started = Date.now()
     const signature = await sendTx(hubAuthority, instructions)
+    await commitPaid(quote.photoHash, fromHex(quote.dHash), hubState.collectionCount.toString())
     return NextResponse.json({
       signature,
       explorer: explorerTx(signature),

@@ -69,7 +69,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Brand screen: claim credits; a second brand claiming the same credits shows the live `AlreadyClaimed` rejection (`/brand`; the rejected claim lands on devnet as a failed tx, error 6004)
 
 ### M4 · Day 2 (2026-10-24): Ledger and fraud (scope freeze 22:00 WAT)
-- [ ] Perceptual-hash duplicate-photo check that blocks a reused photo
+- [x] Perceptual-hash duplicate-photo check that blocks a reused photo (64-bit dHash via sharp, ≤10 bits = same photo; checked in `/api/grade` before the AI call and again in `/api/collect`; index in `app/.data/`, exact SHA-256 still sealed on-chain)
 - [ ] Public ledger page `/ledger/[claim]` tracing claim → credits → intake → bales → bags
 - [ ] Take about 15 real bag photos; seed script replays the full demo on devnet
 

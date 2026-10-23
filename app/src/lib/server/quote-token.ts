@@ -5,6 +5,7 @@ import { hubSecret } from './solana'
 
 export type Quote = {
   photoHash: string // hex SHA-256 of the photo bytes
+  dHash: string // hex 64-bit perceptual hash, indexed once the bag is paid
   weightG: number
   polymerIndex: number
   contaminationBps: number

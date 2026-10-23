@@ -6,6 +6,8 @@ import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
 import { GradeRefusedError, gradePhoto, type ImageMediaType } from '@/lib/grade'
 import { POLYMER_INDEX, quote } from '@/lib/pricing'
+import { dHash, toHex } from '@/lib/server/dhash'
+import { findNearDuplicate, savePending } from '@/lib/server/photo-store'
 import { signQuote } from '@/lib/server/quote-token'
 
 export const runtime = 'nodejs'
@@ -35,12 +37,28 @@ export async function POST(req: Request) {
   const bytes = Buffer.from(await photo.arrayBuffer())
   const photoHash = createHash('sha256').update(bytes).digest('hex')
 
+  // Reused photo? Checked before grading, so a resubmitted picture never costs an AI call.
+  let perceptual: bigint
+  try {
+    perceptual = await dHash(bytes)
+  } catch {
+    return fail(415, 'Could not read that image')
+  }
+  const dup = await findNearDuplicate(perceptual)
+  if (dup) {
+    return NextResponse.json(
+      { error: `This looks like the photo already paid for bag #${dup.collectionIndex}`, duplicateOf: dup },
+      { status: 409 },
+    )
+  }
+
   try {
     const grade = await gradePhoto(bytes.toString('base64'), photo.type as ImageMediaType)
     if (!grade.isPlastic) return NextResponse.json({ error: 'Not a bag of plastic', grade, photoHash }, { status: 422 })
 
     const q = quote(grade.polymer, grade.contaminationBps, weightG, NGN_PER_USD)
     const polymerIndex = POLYMER_INDEX[grade.polymer]
+    await savePending(photoHash, bytes, photo.type)
     return NextResponse.json({
       grade,
       polymerIndex,
@@ -51,7 +69,7 @@ export async function POST(req: Request) {
       amount: q.amount.toString(), // tUSDC base units, as a string (bigint)
       photoHash,
       // /api/collect pays only what this token says.
-      quoteToken: signQuote({ photoHash, weightG, polymerIndex, contaminationBps: grade.contaminationBps, amount: q.amount.toString() }),
+      quoteToken: signQuote({ photoHash, dHash: toHex(perceptual), weightG, polymerIndex, contaminationBps: grade.contaminationBps, amount: q.amount.toString() }),
     })
   } catch (e) {
     if (e instanceof GradeRefusedError) return fail(422, e.message)
