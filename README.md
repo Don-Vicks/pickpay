@@ -30,11 +30,20 @@ Brands with Extended Producer Responsibility (EPR) targets must prove they recov
 - **AI:** Claude vision via `@anthropic-ai/sdk` (key in `app/.env.local`, never committed)
 - **Photos:** `sharp` for perceptual hashes; photos in `app/public/bags/`; no database, the chain is the store
 
+## Devnet
+
+- Program: [`47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
+- Demo hub: `Gm7y3vCkLiEHvxzPSxUfMLd8kcgTbJ7FcxktM6ERyU2i`, escrow `93MqjtctHhZTUt8EEZeMBQYAuFVHNorRBsNhYkBApbwg`
+- tUSDC mint: `664ePnGgSywRELeAz2davzvyBAAyg1qewfFT7AfQxgeC`
+- First paid bag: [`4N75Qo…Cku3`](https://explorer.solana.com/tx/4N75QorLLsxuvhXKLQAKyZCvSEYvLFTVSFpPuM84b58BebCpJ5SWQko3KQLdQg5GJHLNzfaRUjYP7NdDAnbyCku3?cluster=devnet)
+
 ## Run
 
 ```bash
 anchor build --arch v1 && cargo test  # program + LiteSVM tests (always --arch v1)
 pnpm install && pnpm setup:devnet   # devnet actors + tUSDC mint (idempotent; funds from your Solana CLI wallet)
+pnpm generate:client                # IDL → app/src/generated/pickpay (after anchor build)
+pnpm smoke:devnet                   # init hub, fund escrow, pay one bag on devnet
 cd app && pnpm install && pnpm dev  # http://localhost:3000
 ```
 
@@ -52,7 +61,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] `init_hub` and `record_collection` with an SPL transfer payout to the picker (or to a phone-hash claim account); 6 LiteSVM tests incl. duplicate photo and wrong mint
 - [x] `ship_bale` (≤ unshipped collected kg), `confirm_intake` (recycler signer, ≤ bale kg, mints credits), `claim_credits` (single retirement)
 - [x] LiteSVM tests: happy path, `ExceedsCollected`, `ExceedsIntake`, `AlreadyClaimed` (plus wrong recycler and double intake; 11 tests total)
-- [ ] Deploy to devnet and generate the TS client into `app/`
+- [x] Deploy to devnet and generate the TS client into `app/` (`pnpm generate:client` → `app/src/generated/pickpay`; `pnpm smoke:devnet` pays a picker on devnet)
 
 ### M3 · Day 2 (2026-10-24): Wow moment
 - [ ] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount

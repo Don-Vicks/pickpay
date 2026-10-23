@@ -2,6 +2,7 @@
   "name": "app",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
@@ -11,7 +12,10 @@
   "dependencies": {
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.4"
+    "next": "15.5.4",
+    "@solana/program-client-core": "8.5.0",
+    "@solana/kit": "8.5.0",
+    "@solana-program/token": "0.18.0"
   },
   "devDependencies": {
     "typescript": "^5",

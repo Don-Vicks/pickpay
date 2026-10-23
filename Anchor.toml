@@ -9,6 +9,9 @@ skip-lint = false
 [programs.localnet]
 pickpay = "47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz"
 
+[programs.devnet]
+pickpay = "47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz"
+
 [provider]
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
