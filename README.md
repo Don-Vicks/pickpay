@@ -64,8 +64,8 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Deploy to devnet and generate the TS client into `app/` (`pnpm generate:client` → `app/src/generated/pickpay`; `pnpm smoke:devnet` pays a picker on devnet)
 
 ### M3 · Day 2 (2026-10-24): Wow moment
-- [ ] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount
-- [ ] Hub screen: phone, weight, photo → grade → "Pay" sends `record_collection` and shows the confirmed transaction
+- [ ] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount (built and returns a signed quote; live grade on a real photo still to run once `app/.env.local` has the key)
+- [x] Hub screen: phone, weight, photo → grade → "Pay" sends `record_collection` and shows the confirmed transaction (`/hub` + `/api/collect`; Pay verified on devnet in 0.8 s)
 - [ ] Brand screen: claim credits; a second brand claiming the same credits shows the live `AlreadyClaimed` rejection
 
 ### M4 · Day 2 (2026-10-24): Ledger and fraud (scope freeze 22:00 WAT)

@@ -6,6 +6,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { NextResponse } from 'next/server'
 import { GradeRefusedError, gradePhoto, type ImageMediaType } from '@/lib/grade'
 import { POLYMER_INDEX, quote } from '@/lib/pricing'
+import { signQuote } from '@/lib/server/quote-token'
 
 export const runtime = 'nodejs'
 
@@ -39,15 +40,18 @@ export async function POST(req: Request) {
     if (!grade.isPlastic) return NextResponse.json({ error: 'Not a bag of plastic', grade, photoHash }, { status: 422 })
 
     const q = quote(grade.polymer, grade.contaminationBps, weightG, NGN_PER_USD)
+    const polymerIndex = POLYMER_INDEX[grade.polymer]
     return NextResponse.json({
       grade,
-      polymerIndex: POLYMER_INDEX[grade.polymer],
+      polymerIndex,
       weightG,
       ngnPerKg: Number(q.koboPerKg) / 100,
       ngnTotal: Number(q.koboTotal) / 100,
       ngnPerUsd: NGN_PER_USD,
       amount: q.amount.toString(), // tUSDC base units, as a string (bigint)
       photoHash,
+      // /api/collect pays only what this token says.
+      quoteToken: signQuote({ photoHash, weightG, polymerIndex, contaminationBps: grade.contaminationBps, amount: q.amount.toString() }),
     })
   } catch (e) {
     if (e instanceof GradeRefusedError) return fail(422, e.message)
