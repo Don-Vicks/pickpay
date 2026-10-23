@@ -1,0 +1,18 @@
+{
+  "name": "pickpay-scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup:devnet": "tsx scripts/setup-devnet.ts"
+  },
+  "dependencies": {
+    "@solana-program/system": "0.16.0",
+    "@solana-program/token": "0.18.0",
+    "@solana/kit": "8.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "4.23.15",
+    "typescript": "^5.9.0"
+  }
+}

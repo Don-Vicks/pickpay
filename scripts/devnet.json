@@ -1,0 +1,34 @@
+{
+  "cluster": "devnet",
+  "rpc": "https://api.devnet.solana.com",
+  "mint": "664ePnGgSywRELeAz2davzvyBAAyg1qewfFT7AfQxgeC",
+  "decimals": 6,
+  "actors": {
+    "hub": {
+      "address": "JAzNXnKAr7Z28akzkbMqgrC3NBc7qHndBTaXtegrCMY5",
+      "ata": "3RBcxn18tTVaDHf1prabHVeQuFAH33hT99vqwxnfTrgo"
+    },
+    "recycler": {
+      "address": "D9n2CvDG1yg5MVW2dvJZrefVtsoDhvc78SrPgqLDwroV",
+      "ata": "j76jkoMMgxtsb7d5NA5wghYaYYTXrh7GqV1QoPtgzrS"
+    },
+    "brandA": {
+      "address": "CW7yhpuaPehhGDWjmbRusBax6CbtpKBrRZa6DJ23PUdL",
+      "ata": "BgoUZuxmVr13DMqxzEVDtasTMC1HvuiDm8ejpK6pHwCz"
+    },
+    "brandB": {
+      "address": "8ohWnygcS7KGsbfWSE982f67LDUiM57nytSCxcDn78Eu",
+      "ata": "5YWkhbRkKB2y8499Q8ASRzv2SjkZN6GbhBTwHrkuCqH7"
+    },
+    "picker": {
+      "address": "A3wfAMgYKmJAhjAeQp5V7pvGgohnvYajxU8TkKhmw3td",
+      "ata": "EZQrpeazWBEwxvZX1pcjDHDBbNTivatk17cErfn1MDmC"
+    },
+    "mintAuthority": {
+      "address": "71vuV41KCwJy4hQToZQTJrpYWe24NY81d9PazPppY3Zg",
+      "ata": null
+    }
+  },
+  "hubFloat": "10000",
+  "updatedAt": "2026-10-23T20:51:37.515Z"
+}
