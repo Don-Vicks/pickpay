@@ -10,6 +10,7 @@ Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hac
 - **Live program (Solana devnet):** [`47EHi4…gLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
 - **Demo video (3:16):** https://youtu.be/wqHe-604t4c (made with Remotion from real screens of the app on devnet; source in [`video/`](video/))
 - **Docs:** [architecture](docs/architecture.md) · [security and data integrity](docs/security.md) · [problem and climate impact](docs/impact.md) · [demo script](docs/video-script.md)
+- **All docs in one PDF (for judges):** [docs/PickPay-submission.pdf](docs/PickPay-submission.pdf)
 
 ## The problem
 
