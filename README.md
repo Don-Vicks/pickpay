@@ -89,7 +89,7 @@ Details in [docs/impact.md](docs/impact.md).
 - [x] AI grading: Claude vision returns polymer (PET/HDPE/mixed) and contamination %, which set ₦/kg; a perceptual-hash check rejects reused photos
 - [x] Hub screen (mobile web): phone, weight, photo → grade → pay
 - [x] Public ledger page: brand claim → credits → intake → bales → bags (photo hash, grade)
-- [x] Seed script: hub, recycler, two brands and real bag photos (5 openly licensed Commons photos, credited in `app/seed-photos/CREDITS.md`), so the demo replays the same way every time
+- [x] Seed script: hub, recycler, two brands and real bag photos (4 openly licensed Commons photos, credited in `app/seed-photos/CREDITS.md`), so the demo replays the same way every time
 
 ## Stack
 
@@ -144,7 +144,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Perceptual-hash duplicate-photo check that blocks a reused photo (64-bit dHash via sharp, ≤10 bits = same photo; checked in `/api/grade` before the AI call and again in `/api/collect`; index in `app/.data/`, exact SHA-256 still sealed on-chain)
 - [x] Public ledger page `/ledger/[claim]` tracing claim → credits → intake → bales → bags (all from devnet accounts; `/ledger` lists claims; hub photos shown only when their SHA-256 matches the chain)
 - [x] Seed script replays the full demo on devnet (`pnpm seed:demo`: grade → pay → intake → Brand A claims 60%; `--dry-run`, `--base`; see `app/seed-photos/README.md`)
-- [x] Real bag photos in `app/seed-photos/` and `pnpm seed:demo` run on devnet (5 openly licensed photos to save API credits: 4 bags paid, 1 rejected, Brand A retired 13.7 kg; `app/demo-photos/` holds an unused photo for the video)
+- [x] Real bag photos in `app/seed-photos/` and `pnpm seed:demo` run on devnet (openly licensed photos to save API credits: 4 bags paid, 1 rejected, Brand A retired 13.7 kg; the Ikeja photo was later dropped because it shows people, so bag #8 shows no photo; `app/demo-photos/` holds an unused photo for the video)
 
 ### M5 · Day 3 (2026-10-25): Judge docs (by 11:00 WAT)
 - [x] Judge-facing README: problem, how it works, what's new, how to run (on its own merit, no competitor table)
