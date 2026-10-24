@@ -80,13 +80,13 @@ sequenceDiagram
   participant AI as Claude vision
   participant P as PickPay program
   H->>S: POST /api/grade (photo, weight)
-  S->>S: SHA-256 + 64-bit dHash; reject near-duplicate of a paid photo
+  S->>S: SHA-256 + 64-bit dHash, reject near-duplicate of a paid photo
   S->>AI: image + grading rubric (JSON schema output)
   AI-->>S: polymer, contamination, confidence, note
   S->>S: price = rate(polymer) × (1 − contamination) × weight
   S-->>H: grade, ₦ total, HMAC-signed quote
   H->>S: POST /api/collect (quote, phone, wallet?)
-  S->>S: verify quote; photo seal and dHash checks; salted phone hash
+  S->>S: verify quote, photo seal and dHash checks, salted phone hash
   S->>P: record_collection (+ create the picker's token account if needed)
   P->>P: transfer_checked escrow → picker
   P-->>S: confirmed (~1 s on devnet)

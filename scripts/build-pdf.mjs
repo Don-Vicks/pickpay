@@ -63,7 +63,12 @@ const page = await browser.newPage()
 await page.setContent(html, { waitUntil: 'networkidle0' })
 await page.waitForFunction(() => window.__done === true, { timeout: 30000 })
 const err = await page.evaluate(() => window.__err ?? null)
-if (err) console.error('diagram error:', err)
+// A diagram mermaid can't parse still renders, as a "Syntax error" bomb, so check for that too.
+const broken = await page.evaluate(() => [...document.querySelectorAll('pre.mermaid svg')].filter((s) => s.textContent.includes('Syntax error')).length)
+if (err || broken) {
+  console.error('diagram error:', err ?? `${broken} diagram(s) failed to parse`)
+  process.exit(1)
+}
 console.log('diagrams rendered:', await page.evaluate(() => document.querySelectorAll('pre.mermaid svg').length))
 const out = join(ROOT, 'docs/PickPay-submission.pdf')
 await page.pdf({ path: out, format: 'A4', printBackground: true, displayHeaderFooter: true, headerTemplate: '<span></span>',
