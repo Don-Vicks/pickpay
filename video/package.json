@@ -1,0 +1,27 @@
+{
+  "name": "pickpay-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node scripts/capture.mjs",
+    "still": "remotion still PickPayDemo",
+    "studio": "remotion studio",
+    "render": "remotion render PickPayDemo out/pickpay-demo.mp4 --codec h264 --crf 18 --color-space bt709",
+    "render:short": "remotion render PickPayShort out/pickpay-demo-2min.mp4 --codec h264 --crf 18 --color-space bt709",
+    "srt": "tsx scripts/srt.ts"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.538",
+    "@remotion/google-fonts": "4.0.538",
+    "@remotion/transitions": "4.0.538",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.538"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "puppeteer-core": "25.16.0",
+    "typescript": "^5",
+    "tsx": "4.23.15"
+  }
+}

@@ -7,7 +7,7 @@ PickPay pays Lagos waste pickers within seconds for plastic that AI grades from 
 Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hack.devpost.com/) · **Track 3: Sustainable Supply Chains** (recycling traceability, circular economy incentives).
 
 - **Live program (Solana devnet):** [`47EHi4…gLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
-- **Demo video:** _link added at submission_
+- **Demo video:** _link added at submission_ (made with Remotion from real screens of the app on devnet; source in [`video/`](video/))
 - **Docs:** [architecture](docs/architecture.md) · [security and data integrity](docs/security.md) · [problem and climate impact](docs/impact.md) · [demo script](docs/video-script.md)
 
 ## The problem
@@ -120,6 +120,7 @@ pnpm smoke:devnet                   # init hub, fund escrow, pay one bag on devn
 pnpm seed:demo                      # with the app running: grade + pay app/seed-photos, intake, Brand A claim
 cd app && pnpm install && pnpm dev  # http://localhost:3000
 cd app && pnpm test                 # pricing + perceptual-hash unit tests
+cd video && pnpm install && pnpm render  # demo video from video/public/shots (pnpm capture re-records them from the running app)
 ```
 
 ## Plan

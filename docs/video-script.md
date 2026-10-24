@@ -1,5 +1,7 @@
 # Demo video script (target 3:15, hard limit 3:30)
 
+A captioned cut already exists: `video/` renders `out/pickpay-demo.mp4` (3:12) and `out/pickpay-demo-2min.mp4` (1:55) from real screens with Remotion (`pnpm render`). Use this script if you want to record a voiceover or a live screen recording instead.
+
 **Setup before recording**
 
 - App running (`cd app && pnpm dev`), `app/.env.local` has the API key, `pnpm seed:demo` has run so `/brand` shows a batch with credits left.

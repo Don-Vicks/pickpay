@@ -6,6 +6,8 @@ const appRoot = fileURLToPath(new URL(".", import.meta.url));
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: appRoot,
+  // No floating dev badge (it shows up in demo screenshots).
+  devIndicators: false,
   turbopack: { root: appRoot },
 };
 
