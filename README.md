@@ -140,7 +140,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Deploy to devnet and generate the TS client into `app/` (`pnpm generate:client` → `app/src/generated/pickpay`; `pnpm smoke:devnet` pays a picker on devnet)
 
 ### M3 · Day 2 (2026-10-24): Wow moment
-- [x] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount (live on 5 real photos: PET, HDPE and mixed graded and paid, garden waste rejected as not plastic)
+- [x] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount (live on real photos: PET, HDPE and mixed graded and paid; a non-plastic image is rejected; garden waste in plastic sacks grades as very dirty mixed plastic)
 - [x] Hub screen: phone, weight, photo → grade → "Pay" sends `record_collection` and shows the confirmed transaction (`/hub` + `/api/collect`; Pay verified on devnet in 0.8 s)
 - [x] Brand screen: claim credits; a second brand claiming the same credits shows the live `AlreadyClaimed` rejection (`/brand`; the rejected claim lands on devnet as a failed tx, error 6004)
 
@@ -158,17 +158,18 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 
 ### M6 · Day 3 (2026-10-25): Submit (by 13:00 WAT)
 - [x] 3-minute video script (`docs/video-script.md`): grade and payout by 1:45, then the rejected double claim
-- [ ] Record the video (needs the key and seeded photos) and upload it
+- [x] Record the video (`video/`, Remotion from real devnet screens, with an original soundtrack: `video/out/pickpay-demo.mp4`, 3:12)
+- [ ] Upload the video (YouTube unlisted or Vimeo) and add its link to the README and `docs/devpost.md`
 - [x] Devpost text: track alignment, problem, solution, users, scale, adoption (`docs/devpost.md`)
 - [ ] Make the repo public, then submit on Devpost
 
 ## Submission checklist
 
 - [x] Track stated (Track 3) and how the project addresses it
-- [ ] Project description: problem, solution, target users, how it scales, how easily it can be adopted
+- [x] Project description: problem, solution, target users, how it scales, how easily it can be adopted
 - [ ] Demo video, 3–5 min (aim for 3:00–3:30)
 - [ ] Public GitHub repo with source and docs
-- [ ] Working prototype (devnet program ID and app link or run steps)
+- [x] Working prototype (devnet program ID and app link or run steps)
 - [x] Architecture diagram and technical spec
 - [x] Security and data-integrity assessment
 - [x] Problem statement (≤2 pages), climate impact assessment, adoption and scalability roadmap
