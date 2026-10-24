@@ -22,7 +22,14 @@ From the photo, decide:
 - polymer: "pet" if the bag is mostly clear or light-blue PET bottles (water, soft-drink bottles); "hdpe" if mostly opaque rigid containers (milk, detergent, oil jerrycans); "mixed" if no single type is at least about 80% of the visible items, or it includes films, sachets or other plastics.
 - contaminationBps: estimated share of the load that is not recyclable as graded, in basis points (0-10000): dirt, liquids, food residue, non-plastic items, other plastic types mixed in. Labels and caps on bottles are normal and do not count.
 - confidence: how sure you are, given photo quality and how much of the load is visible.
-- notes: one short sentence a hub agent could read to the picker explaining the grade.`
+- notes: one short sentence a hub agent could read to the picker explaining the grade.
+
+Grade only what you can see, and grade the load as it would arrive, not the best item in it. Use these anchors for contamination:
+- 0-1000: sorted, mostly clean items of one type.
+- 1000-2500: one type with some sand, moisture, or a few stray items.
+- 2500-5000: a bag with several non-plastic items (cans, paper) or another plastic type mixed in.
+- 5000-8500: a loose pile or dump-site waste with soil, organic matter, films, sachets, broken or mixed debris. Grade such a pile "mixed" unless one clean type clearly dominates.
+When unsure between a polymer and "mixed", choose "mixed". When unsure about contamination, choose the higher estimate: the recycler weighs and checks every bale, and overpaying for a dirty load costs the hub.`
 
 const SCHEMA = {
   type: 'object',
