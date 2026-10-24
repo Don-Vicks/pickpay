@@ -1,4 +1,4 @@
-# Voiceover for the demo video (3:12)
+# Voiceover for the demo video (3:15)
 
 Read this over `video/out/pickpay-demo.mp4`. Each line fits inside its scene at a relaxed pace (about 140 words a minute). The time on the left is when the scene starts; start the line as the scene appears.
 
