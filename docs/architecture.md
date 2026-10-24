@@ -12,7 +12,7 @@ flowchart LR
   subgraph App["App server (Next.js)"]
     G["/api/grade"]
     C["/api/collect"]
-    I["/api/intake"]
+    I["/api/ship, /api/intake"]
     K["/api/claim"]
     L["/ledger pages"]
     P[("photo store<br/>app/.data")]
@@ -101,7 +101,7 @@ sequenceDiagram
   participant B as Brand screen
   participant S as App server
   participant P as PickPay program
-  B->>S: POST /api/intake
+  B->>S: POST /api/ship, then POST /api/intake (recycler page)
   S->>P: ship_bale (hub signs, weight = collected − shipped)
   S->>P: confirm_intake (recycler signs, accepted ≤ bale)
   B->>S: POST /api/claim (Brand A, 15 kg)
@@ -119,13 +119,15 @@ Claims skip preflight on purpose: the rejection lands on-chain, so the explorer 
 
 | Route | Role |
 |---|---|
-| `/hub` | Mobile screen for the hub agent: phone, optional wallet, weight, photo → grade → pay |
-| `/brand` | Hub totals, recycler intake, credit batches, claims as Brand A or B, live results |
+| `/` | How it works in three steps, with live totals |
+| `/hub` | Step 1, a mobile screen for the hub agent: phone, optional wallet, weight, photo → grade → pay; recent bags |
+| `/recycler` | Step 2: the hub sends unshipped bags as a bale; the recycler enters the weight that arrived and confirms |
+| `/brand` | Step 3: plastic still available to claim, claims as Brand A or B, plain-language results |
 | `/ledger`, `/ledger/[claim]` | Public trace of every claim down to the bags, from chain state |
 | `/api/grade` | Duplicate check, Claude grading, pricing, signed quote |
 | `/api/collect` | Verifies the quote, sends `record_collection`, stores the photo |
-| `/api/intake`, `/api/claim` | Recycler and brand transactions |
-| `/api/ledger`, `/api/photo/[sha]` | Chain reads and paid photos |
+| `/api/ship`, `/api/intake`, `/api/claim` | Hub, recycler and brand transactions (intake and claims skip preflight, so the program's refusal is on-chain) |
+| `/api/ledger`, `/api/bags`, `/api/photo/[sha]` | Chain reads for the demo hub, recent bags, and paid photos |
 
 - **Grading:** `claude-haiku-5-5` (the cheapest current Claude model, about 3 s per photo) at low effort with a JSON schema output; a refusal returns a clear error to the hub. The model sets polymer and contamination; pricing is deterministic integer maths in `app/src/lib/pricing.ts` (demo rates: PET ₦300/kg, HDPE ₦250/kg, mixed ₦100/kg, discounted by contamination).
 - **Signed quotes:** `/api/grade` signs `{photo SHA-256, dHash, weight, polymer, contamination, amount, expiry}` with an HMAC key derived from the hub's secret; `/api/collect` pays only a valid, unexpired quote.

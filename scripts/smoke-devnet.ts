@@ -1,5 +1,6 @@
 // Devnet smoke test through the generated client: init the demo hub (once), move the hub's
 // tUSDC float into its escrow, then record one bag paid straight to the picker's wallet.
+// Pass --init-only to stop before the test bag.
 // Needs `pnpm setup:devnet` first.
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -84,6 +85,9 @@ async function main() {
     })
     console.log(`moved ${float.uiAmountString} tUSDC to escrow`, explorer(await send(hubAuthority, [ix])))
   }
+
+  // --init-only: set up the hub and its float without recording a test bag (for a clean demo).
+  if (process.argv.includes('--init-only')) return
 
   const { data: before } = await fetchHub(rpc, hub)
   const pickerHash = sha256(`pickpay-demo-salt:+2348000000001`)

@@ -7,7 +7,7 @@ Shoot a mix so the grades differ:
 - clear PET water and soft-drink bottles (clean, and one sandy or wet)
 - opaque HDPE containers (detergent, oil jerrycans, milk)
 - a mixed bag with sachets or films
-- one photo that isn't plastic (to show the "not plastic" rejection)
+- one photo that isn't plastic, to show the "not plastic" rejection (garden waste in plastic sacks is graded as very dirty mixed plastic, not rejected)
 
 Optional `manifest.json` sets the scale weight and picker for a photo; anything not listed gets a stable default:
 

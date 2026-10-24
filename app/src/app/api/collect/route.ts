@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   }
   // Two near-identical photos can both hold fresh quotes; only the first one paid counts.
   const dup = await findNearDuplicate(fromHex(quote.dHash))
-  if (dup) return fail(409, `This looks like the photo already paid for bag #${dup.collectionIndex}`)
+  if (dup) return fail(409, `This looks like the photo already paid for bag #${Number(dup.collectionIndex) + 1}`)
 
   const instructions = []
   let pickerToken: Address | undefined

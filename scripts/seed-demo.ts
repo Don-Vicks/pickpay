@@ -1,5 +1,5 @@
 // Replays the demo on devnet through the running app, so every step takes the real path:
-// grade each photo in app/seed-photos (Claude vision) → pay the bag → ship and confirm intake →
+// grade each photo in app/seed-photos (Claude vision) → pay the bag → hub ships a bale → recycler confirms →
 // Brand A retires part of the credits, leaving the rest for the live double-claim moment.
 //
 //   pnpm seed:demo                        # app running at http://localhost:3000
@@ -99,7 +99,7 @@ async function main() {
     if (collected.status !== 200) throw new Error(`Paying ${b.file} failed (${collected.status}): ${collected.body.error}`)
     paid++
     console.log(
-      `  bag #${collected.body.collectionIndex} ${b.file}: ${grade.polymer.toUpperCase()} ${grade.contaminationBps / 100}% → ₦${ngnTotal} in ${collected.body.confirmedMs} ms`,
+      `  bag #${Number(collected.body.collectionIndex) + 1} ${b.file}: ${grade.polymer.toUpperCase()} ${grade.contaminationBps / 100}% → ₦${ngnTotal} in ${collected.body.confirmedMs} ms`,
     )
   }
   if (paid === 0) {
@@ -107,19 +107,22 @@ async function main() {
     return
   }
 
-  const intake = await api<{ weightG: number; acceptedG: number; bale: string }>('/api/intake', {
+  const shipped = await api<{ bale: string; weightG: number; bags: number }>('/api/ship', { method: 'POST' })
+  if (shipped.status !== 200) throw new Error(`Shipping failed (${shipped.status}): ${shipped.body.error}`)
+  const acceptedG = Math.round((shipped.body.weightG * Number(opts['accepted-pct'])) / 100)
+  const intake = await api<{ acceptedG: number }>('/api/intake', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ acceptedPct: Number(opts['accepted-pct']) }),
+    body: JSON.stringify({ bale: shipped.body.bale, acceptedG }),
   })
   if (intake.status !== 200) throw new Error(`Intake failed (${intake.status}): ${intake.body.error}`)
-  console.log(`Bale ${intake.body.bale}: shipped ${kg(intake.body.weightG)}, recycler accepted ${kg(intake.body.acceptedG)}`)
+  console.log(`Bale ${shipped.body.bale}: ${shipped.body.bags} bags, sent ${kg(shipped.body.weightG)}, recycler confirmed ${kg(acceptedG)}`)
   if (opts['no-claim']) return
 
   const ledger = await api<{ batches: { address: string; bale: string }[] }>('/api/ledger')
-  const batch = ledger.body.batches.find((x) => x.bale === intake.body.bale)
+  const batch = ledger.body.batches.find((x) => x.bale === shipped.body.bale)
   if (!batch) throw new Error('New credit batch not found on the ledger')
-  const claimG = Math.floor((intake.body.acceptedG * Number(opts['claim-pct'])) / 100)
+  const claimG = Math.floor((acceptedG * Number(opts['claim-pct'])) / 100)
   const claim = await api<{ ok: boolean; claim?: string; explorer: string }>('/api/claim', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -127,7 +130,7 @@ async function main() {
   })
   if (!claim.body.ok) throw new Error(`Brand A claim failed: ${claim.body.error}`)
 
-  const left = intake.body.acceptedG - claimG
+  const left = acceptedG - claimG
   console.log(`Brand A retired ${kg(claimG)}; ${kg(left)} left in batch ${batch.address}`)
   console.log('\nDemo ready:')
   console.log(`  hub         ${base}/hub`)

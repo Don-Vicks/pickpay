@@ -28,6 +28,7 @@ Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hac
 
 1. **Hub agent** (`/hub`, on a phone): enters the picker's phone number and the scale weight, and photographs the bag. Claude vision grades the polymer (PET, HDPE, mixed) and contamination, which sets the price in ₦/kg. **Pay** records the bag on-chain and pays the picker from the hub's escrow in the same transaction. A picker with no wallet accrues a balance under a salted hash of their phone number.
 2. **Recycler** signs intake for a bale. That signature, and only that signature, creates recovery credits, never more than the bale weighed.
+2b. **Recycler** (`/recycler`) weighs the bale and confirms what arrived.
 3. **Brand** (`/brand`) retires credits against its EPR target. Once retired, they're gone: a second claim on the same kilos fails inside the program.
 4. **Anyone** (`/ledger`) can trace a brand's claim through the recycler's intake and the bale down to each paid bag, with its grade, payout and photo hash.
 
@@ -54,9 +55,11 @@ Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hac
 
 | Screen | What to do |
 |---|---|
-| `/hub` | Grade a bag photo and pay the picker; the confirmed transaction links to the explorer |
-| `/brand` | Ship and confirm a bale, claim as Brand A, then claim the same kilos as Brand B and watch the program reject it |
-| `/ledger` | Open any claim and follow it to the bags |
+| `/` | How it works in three steps, with live totals |
+| `/hub` (step 1) | Grade a bag photo and pay the picker; the confirmed transaction links to the explorer |
+| `/recycler` (step 2) | The hub sends its paid bags as a bale; the recycler weighs and confirms what arrived |
+| `/brand` (step 3) | Claim as Brand A, then claim the same kilos as Brand B and watch the blockchain refuse |
+| `/ledger` | Open any claim and follow it back to the bags |
 
 Run locally (macOS or Linux, Node 24, pnpm, Anchor 1.2, Agave 3.1):
 
@@ -102,9 +105,9 @@ Details in [docs/impact.md](docs/impact.md).
 ## Devnet
 
 - Program: [`47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
-- Demo hub: `Gm7y3vCkLiEHvxzPSxUfMLd8kcgTbJ7FcxktM6ERyU2i`, escrow `93MqjtctHhZTUt8EEZeMBQYAuFVHNorRBsNhYkBApbwg`
+- Demo hub: `BiYZ3y3vNcHL4nRZBmBmpwnnLhMCY1TC2UqrSDWduSXp`, escrow `6ifasar11sHwUbKoKiV4kbo9w2yz1HNwTNuB3SuJN4SS` (fresh hub for the demo; the earlier test hub `Gm7y…yU2i` is still on devnet but not shown)
 - tUSDC mint: `664ePnGgSywRELeAz2davzvyBAAyg1qewfFT7AfQxgeC`
-- First paid bag: [`4N75Qo…Cku3`](https://explorer.solana.com/tx/4N75QorLLsxuvhXKLQAKyZCvSEYvLFTVSFpPuM84b58BebCpJ5SWQko3KQLdQg5GJHLNzfaRUjYP7NdDAnbyCku3?cluster=devnet)
+- First paid bag (test hub): [`4N75Qo…Cku3`](https://explorer.solana.com/tx/4N75QorLLsxuvhXKLQAKyZCvSEYvLFTVSFpPuM84b58BebCpJ5SWQko3KQLdQg5GJHLNzfaRUjYP7NdDAnbyCku3?cluster=devnet)
 - A double claim rejected by the program: [`51yieP…f7pJ`](https://explorer.solana.com/tx/51yiePXZJKvFXvQvSdzht5JxMfP4JjE84U1PNfatRq7uac5GX4XtsvN1vrcnfJ5DoWuyzrDBGqrzBLmX2aYQf7pJ?cluster=devnet)
 
 ## Run

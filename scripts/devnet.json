@@ -5,8 +5,8 @@
   "decimals": 6,
   "actors": {
     "hub": {
-      "address": "JAzNXnKAr7Z28akzkbMqgrC3NBc7qHndBTaXtegrCMY5",
-      "ata": "3RBcxn18tTVaDHf1prabHVeQuFAH33hT99vqwxnfTrgo"
+      "address": "CjnRA12LRkzEvH99xZWRFKziXrLY2wxbhwBy7RdYBjwz",
+      "ata": "BKJ78e7vNcPz8imG3CPPy5H4KcqZ259gqt1LrTm3Eqqr"
     },
     "recycler": {
       "address": "D9n2CvDG1yg5MVW2dvJZrefVtsoDhvc78SrPgqLDwroV",
@@ -29,6 +29,6 @@
       "ata": null
     }
   },
-  "hubFloat": "10000",
-  "updatedAt": "2026-10-23T20:51:37.515Z"
+  "hubFloat": "0",
+  "updatedAt": "2026-10-24T07:58:56.056Z"
 }

@@ -47,7 +47,7 @@ export async function POST(req: Request) {
   const dup = await findNearDuplicate(perceptual)
   if (dup) {
     return NextResponse.json(
-      { error: `This looks like the photo already paid for bag #${dup.collectionIndex}`, duplicateOf: dup },
+      { error: `This looks like the photo already paid for bag #${Number(dup.collectionIndex) + 1}`, duplicateOf: dup },
       { status: 409 },
     )
   }

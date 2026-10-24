@@ -1,41 +1,41 @@
-// POST JSON { acceptedPct?: number } → the hub ships every unshipped gram as one bale, then the
-// recycler signs intake for acceptedPct of it (default 100), which creates the recovery credits.
+// POST JSON { bale, acceptedG } → the recycler confirms what arrived from that bale. Signed by the
+// recycler; this is the only step that creates recycling credits, capped at the bale's weight.
 import { NextResponse } from 'next/server'
-import { fetchHub, getConfirmIntakeInstructionAsync, getShipBaleInstructionAsync } from '@/generated/pickpay'
-import { findBalePda } from '@/lib/pdas'
-import { hubAddress } from '@/lib/server/ledger'
-import { explorerTx, getHubSigner, getSigner, rpc, sendTx } from '@/lib/server/solana'
+import { isAddress, type Address } from '@solana/kit'
+import { fetchBale, getConfirmIntakeInstructionAsync } from '@/generated/pickpay'
+import { explorerTx, getSigner, rpc, sendTxDetailed } from '@/lib/server/solana'
 
 export const runtime = 'nodejs'
 
 const fail = (status: number, error: string) => NextResponse.json({ error }, { status })
 
 export async function POST(req: Request) {
-  const body = (await req.json().catch(() => ({}))) as { acceptedPct?: number }
-  const acceptedPct = body.acceptedPct ?? 100
-  if (!(acceptedPct > 0 && acceptedPct <= 100)) return fail(400, 'acceptedPct must be in (0, 100]')
+  const body = (await req.json().catch(() => ({}))) as { bale?: string; acceptedG?: number }
+  if (!(body.bale && isAddress(body.bale))) return fail(400, 'bale must be a bale address')
+  if (!(Number.isInteger(body.acceptedG) && body.acceptedG! > 0)) return fail(400, 'Enter the weight that arrived, in grams')
 
-  const [hubAuthority, recycler, hub] = await Promise.all([getHubSigner(), getSigner('recycler'), hubAddress()])
-  const { data: h } = await fetchHub(rpc, hub)
-  const weightG = h.collectedG - h.shippedG
-  if (weightG <= 0n) return fail(409, 'No unshipped plastic at the hub. Pay some bags first.')
+  const recycler = await getSigner('recycler')
+  const bale = body.bale as Address
+  const { data: b } = await fetchBale(rpc, bale)
+  if (b.intakeConfirmed) return fail(409, 'This bale was already confirmed')
 
-  try {
-    const bale = await findBalePda(hub, h.baleCount)
-    const shipSig = await sendTx(hubAuthority, [
-      await getShipBaleInstructionAsync({ authority: hubAuthority, hub, bale, weightG, recycler: recycler.address }),
-    ])
-    const acceptedG = (weightG * BigInt(Math.round(acceptedPct * 100))) / 10_000n
-    const intakeSig = await sendTx(recycler, [await getConfirmIntakeInstructionAsync({ recycler, bale, acceptedG })])
-    return NextResponse.json({
-      bale,
-      weightG: Number(weightG),
-      acceptedG: Number(acceptedG),
-      ship: explorerTx(shipSig),
-      intake: explorerTx(intakeSig),
-    })
-  } catch (e) {
-    console.error('ship/intake failed', e)
-    return fail(502, `Transaction failed: ${(e as Error).message}`)
+  // Sent without preflight so an over-weight confirmation is refused by the program on-chain.
+  const result = await sendTxDetailed(
+    recycler,
+    [await getConfirmIntakeInstructionAsync({ recycler, bale, acceptedG: BigInt(body.acceptedG!) })],
+    { skipPreflight: true },
+  )
+  if (result.error) {
+    const tooMuch = result.error.code === 6003
+    return NextResponse.json(
+      {
+        error: tooMuch
+          ? `Refused by the program: you can't confirm more than the ${(Number(b.weightG) / 1000).toFixed(1)} kg that was shipped`
+          : `Transaction failed: ${result.error.message}`,
+        explorer: explorerTx(result.signature),
+      },
+      { status: 409 },
+    )
   }
+  return NextResponse.json({ bale, acceptedG: body.acceptedG, weightG: Number(b.weightG), explorer: explorerTx(result.signature) })
 }

@@ -4,7 +4,7 @@
 
 - App running (`cd app && pnpm dev`), `app/.env.local` has the API key, `pnpm seed:demo` has run so `/brand` shows a batch with credits left.
 - Browser at 1280×800, dark mode, zoom 110%. Phone-width window (or devtools device mode, 390×844) for `/hub`.
-- Tabs in order: `/hub` (phone width), `/brand`, the `/ledger/<claim>` link the seed printed, Solana Explorer.
+- Tabs in order: `/` (home), `/hub` (phone width), `/brand`, `/ledger` (open the Brand A claim), Solana Explorer. The menu at the top shows the steps 1 Hub → 2 Recycler → 3 Brand.
 - Fresh photo for scene 3: `app/demo-photos/video-pet-bales.jpg` (never seeded, so it grades and pays). Reused photo for scene 4: `app/seed-photos/02-hdpe-jerrycans.jpg` (already paid, so it's blocked). Scene 3 costs one grading call; scene 4 costs none.
 - Note the batch's "left to claim" figure; Brand B's claim in scene 5 must be larger than it.
 - Record screen and voice separately if you can; read the voiceover at an easy pace. The timings assume about 150 words per minute.
@@ -43,7 +43,7 @@
 
 ### 5 · Brands: the double claim (2:05–2:50) — the main wow
 
-**On screen:** `/brand`. Point at the batch: recycled kg, retired kg, left to claim. Select **Brand A**, enter a small amount (e.g. 1 kg), **Claim** → green "Brand A retired 1.0 kg". Select **Brand B**, enter more than what's left, **Claim** → red "Rejected by the program: AlreadyClaimed". Click "View failed transaction" → Explorer showing `AlreadyClaimed. Error Number: 6004`.
+**On screen:** optionally flash `/recycler` (step 2): "Bale #1 · 4 bags · sent 24.7 kg · confirmed 23.5 kg". Then `/brand` (step 3): the card "From bale #1 … 9.4 kg still available". Pick **Brand A**, claim **1** kg → green "Brand A claimed 1.0 kg". Pick **Brand B**, type **15**, claim → red "Refused by the blockchain. Brand B asked for 15.0 kg, but only 8.4 kg was left." Click "See the refused attempt" → Explorer showing `AlreadyClaimed. Error Number: 6004`.
 
 **Voiceover:**
 > The hub ships a bale; the recycler weighs it and signs for what it accepted. Only that signature creates credits, and never more than the bale weighed.
