@@ -15,6 +15,7 @@ type Ledger = {
 
 type ClaimResult = {
   ok: boolean
+  claim?: string
   brand: string
   weightG: number
   explorer: string
@@ -148,7 +149,10 @@ export function BrandConsole() {
             <ul className="mt-3 space-y-1 text-sm text-neutral-600 dark:text-neutral-400">
               {b.claims.map((c) => (
                 <li key={c.address} className="tabular-nums">
-                  {c.brand} retired {kg(c.weightG)}
+                  {c.brand} retired {kg(c.weightG)} ·{' '}
+                  <a href={`/ledger/${c.address}`} className="underline">
+                    trace to bags
+                  </a>
                 </li>
               ))}
             </ul>
@@ -186,6 +190,11 @@ export function BrandConsole() {
               <a href={r.explorer} target="_blank" rel="noreferrer" className="mt-1 inline-block underline">
                 {r.ok ? 'View transaction' : 'View failed transaction'}
               </a>
+              {r.claim && (
+                <a href={`/ledger/${r.claim}`} className="ml-3 mt-1 inline-block underline">
+                  Public ledger
+                </a>
+              )}
             </div>
           ))}
         </section>

@@ -33,16 +33,17 @@ export async function POST(req: Request) {
   const { data: b } = await fetchCreditBatch(rpc, batch)
 
   // No server-side "enough left?" check on purpose: the program is the only gatekeeper.
+  const claim = await findClaimPda(batch, b.claimCount)
   const ix = getClaimCreditsInstruction({
     brand,
     creditBatch: batch,
-    claim: await findClaimPda(batch, b.claimCount),
+    claim,
     weightG: BigInt(body.weightG!),
   })
   const result = await sendTxDetailed(brand, [ix], { skipPreflight: true })
   const base = { brand: BRANDS[body.brand as keyof typeof BRANDS], weightG: body.weightG, signature: result.signature, explorer: explorerTx(result.signature) }
 
-  if (!result.error) return NextResponse.json({ ok: true, ...base })
+  if (!result.error) return NextResponse.json({ ok: true, ...base, claim })
   const code = result.error.code
   const [errorName, message] = (code !== null && PROGRAM_ERRORS[code]) || [null, result.error.message]
   return NextResponse.json(

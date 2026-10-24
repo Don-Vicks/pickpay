@@ -70,7 +70,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 
 ### M4 · Day 2 (2026-10-24): Ledger and fraud (scope freeze 22:00 WAT)
 - [x] Perceptual-hash duplicate-photo check that blocks a reused photo (64-bit dHash via sharp, ≤10 bits = same photo; checked in `/api/grade` before the AI call and again in `/api/collect`; index in `app/.data/`, exact SHA-256 still sealed on-chain)
-- [ ] Public ledger page `/ledger/[claim]` tracing claim → credits → intake → bales → bags
+- [x] Public ledger page `/ledger/[claim]` tracing claim → credits → intake → bales → bags (all from devnet accounts; `/ledger` lists claims; hub photos shown only when their SHA-256 matches the chain)
 - [ ] Take about 15 real bag photos; seed script replays the full demo on devnet
 
 ### M5 · Day 3 (2026-10-25): Judge docs (by 11:00 WAT)
