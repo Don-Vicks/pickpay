@@ -5,7 +5,7 @@
 - App running (`cd app && pnpm dev`), `app/.env.local` has the API key, `pnpm seed:demo` has run so `/brand` shows a batch with credits left.
 - Browser at 1280×800, dark mode, zoom 110%. Phone-width window (or devtools device mode, 390×844) for `/hub`.
 - Tabs in order: `/hub` (phone width), `/brand`, the `/ledger/<claim>` link the seed printed, Solana Explorer.
-- One unused bag photo ready to upload (not in `app/seed-photos/`, or the duplicate check blocks it), and one already-seeded photo for the reuse moment.
+- Fresh photo for scene 3: `app/demo-photos/video-pet-bales.jpg` (never seeded, so it grades and pays). Reused photo for scene 4: `app/seed-photos/02-hdpe-jerrycans.jpg` (already paid, so it's blocked). Scene 3 costs one grading call; scene 4 costs none.
 - Note the batch's "left to claim" figure; Brand B's claim in scene 5 must be larger than it.
 - Record screen and voice separately if you can; read the voiceover at an easy pace. The timings assume about 150 words per minute.
 
