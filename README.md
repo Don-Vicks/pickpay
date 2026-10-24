@@ -165,7 +165,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Upload the video (YouTube, unlisted: https://youtu.be/wqHe-604t4c) and add its link to the README and `docs/devpost.md`
 - [x] Devpost text: track alignment, problem, solution, users, scale, adoption (`docs/devpost.md`)
 - [x] Make the repo public (https://github.com/Don-Vicks/pickpay)
-- [ ] Submit on Devpost
+- [x] Submit on Devpost
 
 ## Submission checklist
 
@@ -177,4 +177,4 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Architecture diagram and technical spec
 - [x] Security and data-integrity assessment
 - [x] Problem statement (≤2 pages), climate impact assessment, adoption and scalability roadmap
-- [ ] Submitted before 2026-10-25 15:00 WAT
+- [x] Submitted before 2026-10-25 15:00 WAT
