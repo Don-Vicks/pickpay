@@ -160,6 +160,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 ### M6 · Day 3 (2026-10-25): Submit (by 13:00 WAT)
 - [x] 3-minute video script (`docs/video-script.md`): grade and payout by 1:45, then the rejected double claim
 - [x] Record the video (`video/`, Remotion from real devnet screens, with an original soundtrack: `video/out/pickpay-demo.mp4`, 3:12)
+- [ ] Record the voiceover from `docs/voiceover.md` and mix it in (`video/scripts/add-voice.sh <recording>`)
 - [ ] Upload the video (YouTube unlisted or Vimeo) and add its link to the README and `docs/devpost.md`
 - [x] Devpost text: track alignment, problem, solution, users, scale, adoption (`docs/devpost.md`)
 - [x] Make the repo public (https://github.com/Don-Vicks/pickpay)
