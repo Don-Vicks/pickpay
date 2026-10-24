@@ -8,7 +8,8 @@
     "studio": "remotion studio",
     "render": "remotion render PickPayDemo out/pickpay-demo.mp4 --codec h264 --crf 18 --color-space bt709",
     "render:short": "remotion render PickPayShort out/pickpay-demo-2min.mp4 --codec h264 --crf 18 --color-space bt709",
-    "srt": "tsx scripts/srt.ts"
+    "srt": "tsx scripts/srt.ts",
+    "audio": "node scripts/make-audio.mjs"
   },
   "dependencies": {
     "@remotion/cli": "4.0.538",

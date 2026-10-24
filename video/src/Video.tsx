@@ -3,7 +3,9 @@ import { fade } from '@remotion/transitions/fade'
 import { linearTiming, TransitionSeries } from '@remotion/transitions'
 import {
   AbsoluteFill,
+  Html5Audio,
   Easing,
+  Sequence,
   Img,
   interpolate,
   spring,
@@ -235,8 +237,41 @@ function Progress() {
   )
 }
 
+// Sound effects keyed to beats: [beat id, file, delay in frames, volume].
+const SFX: [string, string, number, number][] = [
+  ['title', 'whoosh', 0, 0.35],
+  ['hub-empty', 'whoosh', 0, 0.3],
+  ['hub-paid', 'chime', 14, 0.5],
+  ['recycler-bale', 'whoosh', 0, 0.3],
+  ['brand', 'whoosh', 0, 0.3],
+  ['brand-a', 'chime', 18, 0.3],
+  ['brand-b-result', 'refused', 8, 0.55],
+  ['ledger', 'whoosh', 0, 0.3],
+]
+
+function Soundtrack({ starts }: { starts: Map<string, number> }) {
+  const { durationInFrames, fps } = useVideoConfig()
+  return (
+    <>
+      <Html5Audio
+        src={staticFile('audio/score.m4a')}
+        // Bed sits under the captions; fades out over the last 4 seconds of either cut.
+        volume={(f) => 0.6 * Math.min(1, Math.max(0, (durationInFrames - f) / (4 * fps)))}
+      />
+      {SFX.filter(([id]) => starts.has(id)).map(([id, file, delay, volume]) => (
+        <Sequence key={`${id}-${file}`} from={starts.get(id)! + delay} durationInFrames={2 * fps}>
+          <Html5Audio src={staticFile(`audio/${file}.m4a`)} volume={volume} />
+        </Sequence>
+      ))}
+    </>
+  )
+}
+
 export function Demo({ cut }: { cut: 'full' | 'short' }) {
   const beats = beatsFor(cut)
+  // Frame where each beat starts, accounting for the crossfade overlap.
+  const starts = new Map<string, number>()
+  beats.reduce((at, b) => (starts.set(b.id, at), at + b.frames - TRANSITION), 0)
   return (
     <AbsoluteFill style={{ fontFamily, color: C.text }}>
       <Backdrop />
@@ -251,6 +286,7 @@ export function Demo({ cut }: { cut: 'full' | 'short' }) {
         ])}
       </TransitionSeries>
       <Progress />
+      <Soundtrack starts={starts} />
     </AbsoluteFill>
   )
 }
