@@ -29,7 +29,8 @@ const SCHEMA = {
   properties: {
     isPlastic: { type: 'boolean' },
     polymer: { type: 'string', enum: ['pet', 'hdpe', 'mixed'] },
-    contaminationBps: { type: 'integer', minimum: 0, maximum: 10000 },
+    // Range (0-10000) is checked after parsing: structured outputs reject integer min/max.
+    contaminationBps: { type: 'integer' },
     confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
     notes: { type: 'string' },
   },

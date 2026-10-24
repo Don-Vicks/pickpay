@@ -75,7 +75,10 @@ export async function POST(req: Request) {
     if (e instanceof GradeRefusedError) return fail(422, e.message)
     if (e instanceof Anthropic.RateLimitError) return fail(429, 'Grading is busy, try again in a moment')
     if (e instanceof Anthropic.AuthenticationError) return fail(500, 'ANTHROPIC_API_KEY was rejected')
-    if (e instanceof Anthropic.APIError) return fail(502, `Grading failed (${e.status})`)
+    if (e instanceof Anthropic.APIError) {
+      console.error('grading API error', e.status, e.message)
+      return fail(502, `Grading failed (${e.status})`)
+    }
     throw e
   }
 }
