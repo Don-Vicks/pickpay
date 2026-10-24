@@ -17,7 +17,7 @@ flowchart LR
     L["/ledger pages"]
     P[("photo store<br/>app/.data")]
   end
-  AI["Claude vision<br/>claude-opus-5-5"]
+  AI["Claude vision<br/>claude-haiku-5-5"]
   subgraph Chain["Solana devnet"]
     PG[["PickPay program"]]
     T[["SPL Token"]]
@@ -127,7 +127,7 @@ Claims skip preflight on purpose: the rejection lands on-chain, so the explorer 
 | `/api/intake`, `/api/claim` | Recycler and brand transactions |
 | `/api/ledger`, `/api/photo/[sha]` | Chain reads and paid photos |
 
-- **Grading:** `claude-opus-5-5` at low effort with a JSON schema output and server-side fallback on refusal. The model sets polymer and contamination; pricing is deterministic integer maths in `app/src/lib/pricing.ts` (demo rates: PET ₦300/kg, HDPE ₦250/kg, mixed ₦100/kg, discounted by contamination).
+- **Grading:** `claude-haiku-5-5` (the cheapest current Claude model, about 3 s per photo) at low effort with a JSON schema output; a refusal returns a clear error to the hub. The model sets polymer and contamination; pricing is deterministic integer maths in `app/src/lib/pricing.ts` (demo rates: PET ₦300/kg, HDPE ₦250/kg, mixed ₦100/kg, discounted by contamination).
 - **Signed quotes:** `/api/grade` signs `{photo SHA-256, dHash, weight, polymer, contamination, amount, expiry}` with an HMAC key derived from the hub's secret; `/api/collect` pays only a valid, unexpired quote.
 - **Duplicate photos:** exact reuse is stopped on-chain by `PhotoSeal`; near-duplicates (≤10 of 64 dHash bits differ) are stopped by the hub's index before grading and again before payment.
 - **Client:** `@solana/kit` 8.5 with a Codama-generated client (`pnpm generate:client`); PDAs whose seeds use instruction data or counters are derived in `app/src/lib/pdas.ts`.

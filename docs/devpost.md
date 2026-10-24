@@ -32,7 +32,7 @@ Lagos produces an estimated 870,000 tonnes of plastic waste a year and recycles 
 
 - **Solana program (Anchor 1.2, Rust):** accounts for hubs, bags, photo seals, pickers, bales, credit batches and claims. Five instructions enforce one rule: collected ≥ shipped ≥ credited ≥ claimed. The picker payout is an SPL token transfer inside the instruction that records the bag. 11 LiteSVM tests cover every rejection path; deployed to devnet.
 - **App (Next.js 15, React 19, TypeScript, Tailwind):** hub, brand and ledger screens; a `@solana/kit` client generated from the program's IDL with Codama. There is no database: every screen reads chain state.
-- **AI grading:** Claude (`claude-opus-5-5`) returns a strict JSON grade against a fixed rubric; pricing is deterministic integer maths on top of it.
+- **AI grading:** Claude Haiku 5.5 (`claude-haiku-5-5`, chosen for cost) returns a strict JSON grade against a fixed rubric; pricing is deterministic integer maths on top of it.
 - **Duplicate detection:** SHA-256 photo seals on-chain plus a 64-bit perceptual hash (`sharp`) on the hub.
 
 ## Challenges I ran into

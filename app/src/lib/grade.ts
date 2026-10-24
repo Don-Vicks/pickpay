@@ -12,7 +12,8 @@ export type Grade = {
 
 export class GradeRefusedError extends Error {}
 
-const MODEL = 'claude-opus-5-5'
+// Haiku: cheapest current model; a one-photo classification doesn't need more.
+const MODEL = 'claude-haiku-5-5'
 
 const SYSTEM = `You grade bags of post-consumer plastic at a recycling collection hub in Lagos, Nigeria.
 The hub pays waste pickers per kilogram, and your grade sets the price, so be accurate and consistent.
@@ -50,11 +51,10 @@ export type ImageMediaType = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/
 const client = new Anthropic()
 
 export async function gradePhoto(imageBase64: string, mediaType: ImageMediaType): Promise<Grade> {
-  const response = await client.beta.messages.create({
+  // Haiku has no server-side refusal fallback; a declined photo surfaces as GradeRefusedError.
+  const response = await client.messages.create({
     model: MODEL,
     max_tokens: 2_000,
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
     // A single photo classification: low effort keeps the hub queue moving.
     output_config: { effort: 'low', format: { type: 'json_schema', schema: SCHEMA } },
     system: SYSTEM,
