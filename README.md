@@ -44,6 +44,7 @@ anchor build --arch v1 && cargo test  # program + LiteSVM tests (always --arch v
 pnpm install && pnpm setup:devnet   # devnet actors + tUSDC mint (idempotent; funds from your Solana CLI wallet)
 pnpm generate:client                # IDL → app/src/generated/pickpay (after anchor build)
 pnpm smoke:devnet                   # init hub, fund escrow, pay one bag on devnet
+pnpm seed:demo                      # with the app running: grade + pay app/seed-photos, intake, Brand A claim
 cd app && pnpm install && pnpm dev  # http://localhost:3000
 ```
 
@@ -71,7 +72,8 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 ### M4 · Day 2 (2026-10-24): Ledger and fraud (scope freeze 22:00 WAT)
 - [x] Perceptual-hash duplicate-photo check that blocks a reused photo (64-bit dHash via sharp, ≤10 bits = same photo; checked in `/api/grade` before the AI call and again in `/api/collect`; index in `app/.data/`, exact SHA-256 still sealed on-chain)
 - [x] Public ledger page `/ledger/[claim]` tracing claim → credits → intake → bales → bags (all from devnet accounts; `/ledger` lists claims; hub photos shown only when their SHA-256 matches the chain)
-- [ ] Take about 15 real bag photos; seed script replays the full demo on devnet
+- [x] Seed script replays the full demo on devnet (`pnpm seed:demo`: grade → pay → intake → Brand A claims 60%; `--dry-run`, `--base`; see `app/seed-photos/README.md`)
+- [ ] Take about 15 real bag photos into `app/seed-photos/`, then run `pnpm seed:demo` with the key set
 
 ### M5 · Day 3 (2026-10-25): Judge docs (by 11:00 WAT)
 - [ ] Judge-facing README: problem, how it works, "how this differs" table (Plastic Bank, Wecyclers, RecyclePoints), how to run

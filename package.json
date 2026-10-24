@@ -5,7 +5,8 @@
   "scripts": {
     "setup:devnet": "tsx scripts/setup-devnet.ts",
     "generate:client": "tsx scripts/generate-client.ts",
-    "smoke:devnet": "tsx scripts/smoke-devnet.ts"
+    "smoke:devnet": "tsx scripts/smoke-devnet.ts",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@solana-program/system": "0.16.0",
