@@ -8,12 +8,18 @@ import {
   Sequence,
   Img,
   interpolate,
+  OffthreadVideo,
   spring,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion'
-import { beatsFor, TRANSITION, type Beat, type Pan, type Zoom } from './beats'
+import { beatsFor, TRANSITION, type Beat, type Mark } from './beats'
+import CLIPS_JSON from '../public/clips/manifest.json'
+import STILLS_JSON from '../public/stills/manifest.json'
+
+const CLIPS = CLIPS_JSON as unknown as Record<string, { duration: number; marks: Mark[] }>
+const STILLS = STILLS_JSON as unknown as Record<string, { width: number; height: number; marks: Mark[] }>
 
 const { fontFamily } = loadFont('normal', { weights: ['400', '500', '600', '700'], subsets: ['latin'] })
 
@@ -50,59 +56,53 @@ function useEnter(delay = 0) {
   return spring({ frame: frame - delay, fps, config: { damping: 200 } })
 }
 
-function StepPill({ step }: { step: string }) {
-  const p = useEnter(2)
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 40,
-        left: 60,
-        padding: '10px 22px',
-        borderRadius: 999,
-        background: 'rgba(16,185,129,0.14)',
-        border: '1px solid rgba(16,185,129,0.45)',
-        color: C.accent,
-        fontSize: 28,
-        fontWeight: 600,
-        opacity: p,
-      }}
-    >
-      {step}
-    </div>
-  )
-}
+// Layout: the app fills the top 1920x912; a caption bar (step + caption) sits underneath.
+const APP_W = 1920
+const APP_H = 912
 
-function Caption({ text }: { text: string }) {
-  const p = useEnter(8)
+function Bar({ step, text }: { step?: string; text: string }) {
+  const p = useEnter(6)
   return (
     <div
       style={{
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 48,
+        top: APP_H,
+        bottom: 0,
         display: 'flex',
-        flexDirection: 'column',
         alignItems: 'center',
-        gap: 12,
-        opacity: p,
-        transform: `translateY(${(1 - p) * 24}px)`,
+        gap: 28,
+        padding: '0 56px',
+        background: 'linear-gradient(180deg, #0d1411, #0a0a0a)',
+        borderTop: '1px solid rgba(16,185,129,0.35)',
       }}
     >
+      {step && (
+        <div
+          style={{
+            flexShrink: 0,
+            padding: '10px 20px',
+            borderRadius: 999,
+            background: 'rgba(16,185,129,0.14)',
+            border: '1px solid rgba(16,185,129,0.45)',
+            color: C.accent,
+            fontSize: 28,
+            fontWeight: 600,
+          }}
+        >
+          {step}
+        </div>
+      )}
       <div
         style={{
-          maxWidth: 1500,
-          textAlign: 'center',
+          flex: 1,
           color: C.text,
-          fontSize: 46,
+          fontSize: 44,
           fontWeight: 600,
-          lineHeight: 1.2,
-          padding: '18px 34px',
-          borderRadius: 22,
-          background: 'rgba(10,10,10,0.82)',
-          border: `1px solid ${C.border}`,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+          lineHeight: 1.15,
+          opacity: p,
+          transform: `translateY(${(1 - p) * 14}px)`,
         }}
       >
         {text}
@@ -111,84 +111,118 @@ function Caption({ text }: { text: string }) {
   )
 }
 
-/** A screenshot inside a frame, with an optional slow zoom toward a point and a vertical pan. */
-function Shot({ src, width, height, zoom, pan, radius }: { src: string; width: number; height: number; zoom?: Zoom; pan?: Pan; radius: number }) {
+/** Fades a highlight in over 8 frames after `at` and out over 8 frames before `until` (seconds). */
+function markOpacity(frame: number, fps: number, m: Mark) {
+  return interpolate(frame / fps, [m.at, m.at + 0.27, m.until - 0.27, m.until], [0, 1, 1, 0], clamp)
+}
+
+/**
+ * Content (a clip or a still) laid out in `box`, with highlight boxes and an optional push-in on
+ * the highlighted element. `marks` are in 0..1 of the content and seconds of scene time.
+ */
+function Stage({ box, marks, children }: { box: { x: number; y: number; w: number; h: number }; marks: Mark[]; children: React.ReactNode }) {
   const frame = useCurrentFrame()
-  const { durationInFrames } = useVideoConfig()
-  const t = interpolate(frame, [10, durationInFrames - 10], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) })
-  const scale = zoom ? interpolate(t, [0, 1], [zoom.from, zoom.to]) : 1
-  const panY = pan ? interpolate(t, [0, 1], [pan.from, pan.to]) : 0
+  const { fps } = useVideoConfig()
+  // Push in toward the zooming mark that is currently showing.
+  let scale = 1
+  let ox = 0.5
+  let oy = 0.5
+  for (const m of marks) {
+    if (m.zoom <= 1) continue
+    const k = interpolate(frame / fps, [m.at, m.at + 0.6, m.until - 0.6, m.until], [0, 1, 1, 0], { ...clamp, easing: Easing.inOut(Easing.cubic) })
+    if (k > 0) {
+      scale = 1 + (m.zoom - 1) * k
+      ox = m.x + m.w / 2
+      oy = m.y + m.h / 2
+    }
+  }
   return (
-    <div style={{ width, height, overflow: 'hidden', borderRadius: radius, position: 'relative', background: C.bg }}>
-      <Img
-        src={staticFile(`shots/${src}`)}
+    <div style={{ position: 'absolute', left: 0, top: 0, width: APP_W, height: APP_H, overflow: 'hidden' }}>
+      <div
         style={{
           position: 'absolute',
-          left: 0,
-          width: '100%',
-          // Tall screenshots pan from top (0) to bottom (1); short ones just sit at the top.
-          top: pan ? `${-panY * 100}%` : 0,
-          transform: pan ? `translateY(${panY * height}px) scale(${scale})` : `scale(${scale})`,
-          transformOrigin: zoom ? `${zoom.x * 100}% ${zoom.y * 100}%` : 'center top',
+          left: box.x,
+          top: box.y,
+          width: box.w,
+          height: box.h,
+          transform: `scale(${scale})`,
+          transformOrigin: `${ox * 100}% ${oy * 100}%`,
         }}
-      />
+      >
+        {children}
+        {marks.map((m, i) => {
+          const o = markOpacity(frame, fps, m)
+          if (o <= 0) return null
+          return (
+            <div key={i} style={{ position: 'absolute', left: `${m.x * 100}%`, top: `${m.y * 100}%`, width: `${m.w * 100}%`, height: `${m.h * 100}%`, opacity: o }}>
+              <div
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: 14,
+                  border: `${4 / scale}px solid #34d399`,
+                  boxShadow: '0 0 0 9999px rgba(0,0,0,0.38), 0 0 40px rgba(52,211,153,0.55)',
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  bottom: '100%',
+                  marginBottom: 10 / scale,
+                  padding: `${6 / scale}px ${14 / scale}px`,
+                  borderRadius: 10 / scale,
+                  background: '#34d399',
+                  color: '#04130c',
+                  fontSize: 26 / scale,
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {m.label}
+              </div>
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }
 
-function BrowserBeat({ beat }: { beat: Exclude<Beat, { kind: 'text' }> }) {
-  const p = useEnter()
-  const w = 1400
-  const h = 760
+type ClipBeatT = Extract<Beat, { kind: 'clip' }>
+type StillBeatT = Extract<Beat, { kind: 'still' }>
+
+function ClipBeat({ beat }: { beat: ClipBeatT & { frames: number } }) {
+  const { fps } = useVideoConfig()
+  const from = beat.from ?? 0
+  const marks = (CLIPS[beat.clip]?.marks ?? [])
+    .map((m) => ({ ...m, at: m.at - from, until: m.until - from }))
+    .filter((m) => m.until > 0 && m.at < beat.frames / fps)
   return (
-    <AbsoluteFill style={{ alignItems: 'center', paddingTop: 110 }}>
-      <div
-        style={{
-          width: w,
-          borderRadius: 22,
-          border: `1px solid ${C.border}`,
-          background: C.panel,
-          boxShadow: '0 40px 120px rgba(0,0,0,0.6)',
-          opacity: p,
-          transform: `translateY(${(1 - p) * 40}px) scale(${0.97 + p * 0.03})`,
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{ height: 52, display: 'flex', alignItems: 'center', gap: 10, padding: '0 22px', borderBottom: `1px solid ${C.border}` }}>
-          {['#ff5f57', '#febc2e', '#28c840'].map((c) => (
-            <span key={c} style={{ width: 14, height: 14, borderRadius: 7, background: c, opacity: 0.85 }} />
-          ))}
-          <span style={{ marginLeft: 18, color: C.muted, fontSize: 22 }}>{beat.url}</span>
-        </div>
-        <Shot src={beat.shot} width={w} height={h - 52} zoom={beat.zoom} pan={beat.pan} radius={0} />
-      </div>
-      {beat.step && <StepPill step={beat.step} />}
-      <Caption text={beat.caption} />
+    <AbsoluteFill style={{ background: C.bg }}>
+      <Stage box={{ x: 0, y: 0, w: APP_W, h: APP_H }} marks={marks}>
+        <OffthreadVideo src={staticFile(`clips/${beat.clip}.mp4`)} startFrom={Math.round(from * fps)} muted style={{ width: APP_W, height: APP_H }} />
+      </Stage>
+      <Bar step={beat.step} text={beat.caption} />
     </AbsoluteFill>
   )
 }
 
-function PhoneBeat({ beat }: { beat: Exclude<Beat, { kind: 'text' }> }) {
+function StillBeat({ beat }: { beat: StillBeatT }) {
+  const meta = STILLS[beat.still]
   const p = useEnter()
-  const h = 790
-  const w = Math.round((h * 390) / 844)
+  // Fit the crop inside the app area with a margin, centred.
+  const k = Math.min((APP_W - 160) / meta.width, (APP_H - 120) / meta.height)
+  const w = meta.width * k
+  const h = meta.height * k
   return (
-    <AbsoluteFill style={{ alignItems: 'center', paddingTop: 50 }}>
-      <div
-        style={{
-          padding: 14,
-          borderRadius: 64,
-          background: '#1c1c1c',
-          border: '2px solid rgba(255,255,255,0.14)',
-          boxShadow: '0 40px 120px rgba(0,0,0,0.65)',
-          opacity: p,
-          transform: `translateY(${(1 - p) * 40}px)`,
-        }}
-      >
-        <Shot src={beat.shot} width={w} height={h} zoom={beat.zoom} radius={50} />
+    <AbsoluteFill style={{ background: C.bg }}>
+      <div style={{ opacity: p }}>
+        <Stage box={{ x: (APP_W - w) / 2, y: (APP_H - h) / 2, w, h }} marks={meta.marks}>
+          <Img src={staticFile(`stills/${beat.still}.png`)} style={{ width: w, height: h, borderRadius: 18 }} />
+        </Stage>
       </div>
-      {beat.step && <StepPill step={beat.step} />}
-      <Caption text={beat.caption} />
+      <Bar step={beat.step} text={beat.caption} />
     </AbsoluteFill>
   )
 }
@@ -278,7 +312,7 @@ export function Demo({ cut }: { cut: 'full' | 'short' }) {
       <TransitionSeries>
         {beats.flatMap((b, i) => [
           <TransitionSeries.Sequence key={b.id} durationInFrames={b.frames} premountFor={30}>
-            {b.kind === 'text' ? <TextBeat beat={b} /> : b.kind === 'phone' ? <PhoneBeat beat={b} /> : <BrowserBeat beat={b} />}
+            {b.kind === 'text' ? <TextBeat beat={b} /> : b.kind === 'clip' ? <ClipBeat beat={b} /> : <StillBeat beat={b} />}
           </TransitionSeries.Sequence>,
           ...(i < beats.length - 1
             ? [<TransitionSeries.Transition key={`${b.id}-t`} presentation={fade()} timing={linearTiming({ durationInFrames: TRANSITION })} />]
