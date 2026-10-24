@@ -20,7 +20,7 @@
 
 ### 2 · What PickPay is (0:25–0:45)
 
-**On screen:** the flow diagram from the README: picker → hub → recycler → brand, with the four instruction names.
+**On screen:** the home page (`/`): the pitch, live devnet totals (bags paid, kg collected, recycled, claimed) and the three screens. Or the flow diagram from the README.
 
 **Voiceover:**
 > PickPay puts that whole chain on Solana. Pickers are paid the moment their bag is weighed. Recycling credits only exist once a recycler signs for the plastic. And each kilo can be claimed by exactly one brand. The program enforces it, not a server.
