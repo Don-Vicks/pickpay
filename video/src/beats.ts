@@ -46,7 +46,7 @@ export const BEATS: Beat[] = [
 
   { kind: 'text', id: 'why', s: 10, short: 6, title: 'Paid in seconds. Confirmed by the recycler. Claimed once.', sub: 'The rules live in the program, not in a spreadsheet.' },
   { kind: 'text', id: 'impact', s: 9, short: 0, eyebrow: 'Conservative estimate', title: '≈ 660 t CO₂e a year', sub: 'avoided by one hub recovering a tonne of PET a day, 300 days a year.', accent: '≈ 660 t CO₂e a year' },
-  { kind: 'text', id: 'end', s: 12, short: 8, eyebrow: 'IEEE ClimateChain Global Hackathon · Track 3', title: 'PickPay', sub: 'Live on Solana devnet · program 47EH…gLTz · next: a pilot with one Lagos hub and one recycler', accent: 'PickPay' },
+  { kind: 'text', id: 'end', s: 12, short: 8, eyebrow: 'IEEE ClimateChain Global Hackathon · Track 3', title: 'PickPay', sub: 'github.com/Don-Vicks/pickpay · live on Solana devnet · next: a pilot with one Lagos hub and one recycler', accent: 'PickPay' },
 ]
 
 export const FPS = 30

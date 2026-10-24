@@ -6,6 +6,7 @@ PickPay pays Lagos waste pickers within seconds for plastic that AI grades from 
 
 Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hack.devpost.com/) · **Track 3: Sustainable Supply Chains** (recycling traceability, circular economy incentives).
 
+- **Code:** https://github.com/Don-Vicks/pickpay
 - **Live program (Solana devnet):** [`47EHi4…gLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
 - **Demo video:** _link added at submission_ (made with Remotion from real screens of the app on devnet; source in [`video/`](video/))
 - **Docs:** [architecture](docs/architecture.md) · [security and data integrity](docs/security.md) · [problem and climate impact](docs/impact.md) · [demo script](docs/video-script.md)
@@ -161,14 +162,15 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Record the video (`video/`, Remotion from real devnet screens, with an original soundtrack: `video/out/pickpay-demo.mp4`, 3:12)
 - [ ] Upload the video (YouTube unlisted or Vimeo) and add its link to the README and `docs/devpost.md`
 - [x] Devpost text: track alignment, problem, solution, users, scale, adoption (`docs/devpost.md`)
-- [ ] Make the repo public, then submit on Devpost
+- [x] Make the repo public (https://github.com/Don-Vicks/pickpay)
+- [ ] Submit on Devpost
 
 ## Submission checklist
 
 - [x] Track stated (Track 3) and how the project addresses it
 - [x] Project description: problem, solution, target users, how it scales, how easily it can be adopted
 - [ ] Demo video, 3–5 min (aim for 3:00–3:30)
-- [ ] Public GitHub repo with source and docs
+- [x] Public GitHub repo with source and docs (https://github.com/Don-Vicks/pickpay)
 - [x] Working prototype (devnet program ID and app link or run steps)
 - [x] Architecture diagram and technical spec
 - [x] Security and data-integrity assessment

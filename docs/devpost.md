@@ -68,7 +68,7 @@ solana, anchor, rust, typescript, next.js, react, tailwindcss, claude, anthropic
 
 ## Links
 
-- **Code:** [GitHub repo URL]
+- **Code:** https://github.com/Don-Vicks/pickpay
 - **Demo video:** [YouTube or Vimeo URL]
 - **Program on devnet:** https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet
 - **Docs:** architecture, security and data integrity, problem and impact (in the repo's `docs/` folder)
