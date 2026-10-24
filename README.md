@@ -8,7 +8,7 @@ Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hac
 
 - **Live program (Solana devnet):** [`47EHi4…gLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
 - **Demo video:** _link added at submission_
-- **Docs:** [architecture](docs/architecture.md) · [security and data integrity](docs/security.md) · [problem and climate impact](docs/impact.md)
+- **Docs:** [architecture](docs/architecture.md) · [security and data integrity](docs/security.md) · [problem and climate impact](docs/impact.md) · [demo script](docs/video-script.md)
 
 ## The problem
 
@@ -153,8 +153,9 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] 2-page problem and impact statement with cited CO2e figures, plus adoption and scalability roadmap (`docs/impact.md`)
 
 ### M6 · Day 3 (2026-10-25): Submit (by 13:00 WAT)
-- [ ] 3-minute video script and recording: AI grade and payout at about 1:45, then the rejected double claim
-- [ ] Devpost text: track alignment, problem, solution, users, scale, adoption
+- [x] 3-minute video script (`docs/video-script.md`): grade and payout by 1:45, then the rejected double claim
+- [ ] Record the video (needs the key and seeded photos) and upload it
+- [x] Devpost text: track alignment, problem, solution, users, scale, adoption (`docs/devpost.md`)
 - [ ] Make the repo public, then submit on Devpost
 
 ## Submission checklist
