@@ -41,7 +41,7 @@ These are covered by 11 LiteSVM tests against the compiled program, and the doub
 | Fact | Source of truth | How a reader checks it |
 |---|---|---|
 | A bag was weighed, graded and paid | `Collection` account + the payout transaction | Explorer link on the ledger page |
-| The photo is the one graded | SHA-256 in `Collection.photo_hash` | Ledger marks "matches the chain ✓" after hashing the stored file |
+| The photo is the one graded | SHA-256 in `Collection.photo_hash` | Ledger shows "photo matches the blockchain record ✓" after hashing the stored file |
 | A recycler received the plastic | `CreditBatch` created by the recycler's signature | The intake transaction's signer |
 | A brand's claim is unique | `CreditBatch.claimed_g ≤ accepted_g` | Batch account; the failed transaction for any over-claim |
 

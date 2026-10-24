@@ -6,34 +6,39 @@ PickPay has three parts: an Anchor program on Solana that holds every fact and e
 
 ```mermaid
 flowchart LR
-  subgraph Device["Hub device"]
-    UI["/hub screen"]
+  subgraph Screens
+    UI["Hub (phone)"]
+    RC["Recycler"]
+    BR["Brand"]
+    PUB["Anyone (public ledger)"]
   end
   subgraph App["App server (Next.js)"]
-    G["/api/grade"]
-    C["/api/collect"]
+    G["/api/grade<br/>duplicate check, grade, signed quote"]
+    C["/api/collect<br/>verify quote, pay"]
     I["/api/ship, /api/intake"]
     K["/api/claim"]
     L["/ledger pages"]
-    P[("photo store<br/>app/.data")]
   end
   AI["Claude vision<br/>claude-haiku-5-5"]
+  P[("photo store +<br/>dHash index")]
   subgraph Chain["Solana devnet"]
     PG[["PickPay program"]]
-    T[["SPL Token"]]
+    T[["SPL Token<br/>picker payout"]]
   end
-  UI -- photo + weight --> G
-  G -- image --> AI
-  G -- dHash check / save pending --> P
-  G -- signed quote --> UI
-  UI -- quote + phone --> C
+  UI -- "1. photo + weight" --> G
+  UI -- "2. quote + phone" --> C
+  RC --> I
+  BR --> K
+  PUB --> L
+  G --> AI
+  G -.-> P
+  C -.-> P
+  L -.-> P
   C -- record_collection --> PG
-  PG -- CPI transfer_checked --> T
-  C -- index paid photo --> P
-  I -- ship_bale, confirm_intake --> PG
+  I -- "ship_bale, confirm_intake" --> PG
   K -- claim_credits --> PG
   L -- read accounts --> PG
-  L -- verified photos --> P
+  PG -- CPI transfer_checked --> T
 ```
 
 ## On-chain program

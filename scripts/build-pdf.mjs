@@ -18,6 +18,8 @@ const render = (file) =>
   })
     // GitHub wraps mermaid blocks in an iframe loader; keep only the raw diagram for mermaid.js.
     .replace(/<section class="js-render-needs-enrichment[\s\S]*?<pre lang="mermaid"[^>]*>([\s\S]*?)<\/pre>[\s\S]*?<\/section>/g, '<pre class="mermaid">$1</pre>')
+    // Keep a heading on the same page as the diagram under it.
+    .replace(/(<div class="markdown-heading"[\s\S]*?<\/div>)\s*(<pre class="mermaid">[\s\S]*?<\/pre>)/g, '<div class="keep">$1$2</div>')
 
 const cover = `
 <section class="cover">
@@ -48,6 +50,8 @@ const html = `<!doctype html><html><head><meta charset="utf-8">
   .cover table td:first-child { font-weight: 600; white-space: nowrap; }
   .cover .contents { margin-top: 14mm; color: #555; }
   pre.mermaid { background: none; text-align: center; }
+  .keep, pre.mermaid, tr { break-inside: avoid; }
+  .markdown-heading, h1, h2, h3 { break-after: avoid; }
   table { font-size: 10pt; }
 </style></head>
 <body><article class="markdown-body">

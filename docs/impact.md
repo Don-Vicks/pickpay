@@ -2,7 +2,7 @@
 
 ## Problem statement
 
-Nigeria generates an estimated 2.5 million tonnes of plastic waste a year, about 870,000 tonnes of it in Lagos ([NESG, 2023](https://nesgroup.org/download_resource_documents/NRFP%20Policy%20Brief-%20Dr%20Theresa%20&%20Peter%20Agada%20Ali_1701187431.pdf)). Lagos collects an estimated 20–30% of its waste and recycles about 13% of recyclables; nationally about 81% of solid waste is mismanaged, which means dumped, burned or washed into drains and the lagoon ([WACA/ENB, 2022](https://www.wacaprogram.org/sites/waca/files/knowdoc/Wednesday%20Webinar_Healthcare%20plastic%20waste%20management%20in%20Nigeria_%2020220209.pdf)). These figures are estimates; Nigerian waste data is thin, and the sources say so.
+Nigeria generates an estimated 2.5 million tonnes of plastic waste a year, about 870,000 tonnes of it in Lagos ([ThisDay, 2024](https://www.thisdaylive.com/2024/02/22/hazards-of-plastic-waste-in-nigeria/)). A 2021 survey by UN-Habitat and the Lagos Waste Management Authority found that Lagos collects 48% of its municipal solid waste, handles 8% in controlled facilities and recovers 8% for recycling; the rest is left uncollected or dumped ([UN-Habitat Waste Wise Cities factsheet, Lagos](https://www.africancleancities.org/sites/default/files/2023-06/facsheet-lagos.pdf)). These figures are estimates; Nigerian waste data is thin, and the sources say so.
 
 Two things keep plastic from reaching recyclers:
 
