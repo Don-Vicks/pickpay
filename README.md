@@ -86,10 +86,10 @@ Details in [docs/impact.md](docs/impact.md).
 
 - [x] Anchor program on devnet with `init_hub`, `record_collection` (pays the picker in the same transaction), `ship_bale`, `confirm_intake` (recycler-signed, mints credits) and `claim_credits`; errors `ExceedsCollected`, `ExceedsIntake`, `AlreadyClaimed`; LiteSVM tests for each
 - [x] Devnet USDC-style SPL payout from hub escrow, with a claimable account keyed by a phone hash for pickers without wallets
-- [ ] AI grading: Claude vision returns polymer (PET/HDPE/mixed) and contamination %, which set ₦/kg; a perceptual-hash check rejects reused photos
+- [x] AI grading: Claude vision returns polymer (PET/HDPE/mixed) and contamination %, which set ₦/kg; a perceptual-hash check rejects reused photos
 - [x] Hub screen (mobile web): phone, weight, photo → grade → pay
 - [x] Public ledger page: brand claim → credits → intake → bales → bags (photo hash, grade)
-- [ ] Seed script: hub, recycler, two brands and about 15 real bag photos, so the demo replays the same way every time
+- [x] Seed script: hub, recycler, two brands and real bag photos (5 openly licensed Commons photos, credited in `app/seed-photos/CREDITS.md`), so the demo replays the same way every time
 
 ## Stack
 
@@ -136,7 +136,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Deploy to devnet and generate the TS client into `app/` (`pnpm generate:client` → `app/src/generated/pickpay`; `pnpm smoke:devnet` pays a picker on devnet)
 
 ### M3 · Day 2 (2026-10-24): Wow moment
-- [ ] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount (live call verified: a non-plastic image is rejected with a correct note in ~4 s; grading a real bag still to run when photos are in)
+- [x] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount (live on 5 real photos: PET, HDPE and mixed graded and paid, garden waste rejected as not plastic)
 - [x] Hub screen: phone, weight, photo → grade → "Pay" sends `record_collection` and shows the confirmed transaction (`/hub` + `/api/collect`; Pay verified on devnet in 0.8 s)
 - [x] Brand screen: claim credits; a second brand claiming the same credits shows the live `AlreadyClaimed` rejection (`/brand`; the rejected claim lands on devnet as a failed tx, error 6004)
 
@@ -144,7 +144,7 @@ Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
 - [x] Perceptual-hash duplicate-photo check that blocks a reused photo (64-bit dHash via sharp, ≤10 bits = same photo; checked in `/api/grade` before the AI call and again in `/api/collect`; index in `app/.data/`, exact SHA-256 still sealed on-chain)
 - [x] Public ledger page `/ledger/[claim]` tracing claim → credits → intake → bales → bags (all from devnet accounts; `/ledger` lists claims; hub photos shown only when their SHA-256 matches the chain)
 - [x] Seed script replays the full demo on devnet (`pnpm seed:demo`: grade → pay → intake → Brand A claims 60%; `--dry-run`, `--base`; see `app/seed-photos/README.md`)
-- [ ] Take about 15 real bag photos into `app/seed-photos/`, then run `pnpm seed:demo` with the key set
+- [x] Real bag photos in `app/seed-photos/` and `pnpm seed:demo` run on devnet (5 openly licensed photos to save API credits: 4 bags paid, 1 rejected, Brand A retired 13.7 kg; `app/demo-photos/` holds an unused photo for the video)
 
 ### M5 · Day 3 (2026-10-25): Judge docs (by 11:00 WAT)
 - [x] Judge-facing README: problem, how it works, what's new, how to run (on its own merit, no competitor table)
