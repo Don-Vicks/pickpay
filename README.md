@@ -1,180 +1,125 @@
 # PickPay
 
-**Every kilo paid once, claimed once.**
+**Every kilo of plastic paid once, claimed once.**
 
-PickPay pays Lagos waste pickers within seconds for plastic that AI grades from a photo. Every kilo they bring in becomes a recycling credit that exists only after a recycler confirms it received the plastic, and that exactly one brand can claim against its producer-responsibility target. The whole chain, from a picker's bag to a brand's claim, is one public Solana ledger that anyone can check.
+PickPay pays waste pickers in Lagos within seconds for plastic that AI grades from a photo. A kilo becomes a recycling credit only after a recycler confirms it received the plastic, and exactly one brand can claim that credit toward its recycling target. A Solana program enforces both rules, and anyone can trace a brand's claim back to the bags it came from.
 
-Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hack.devpost.com/) · **Track 3: Sustainable Supply Chains** (recycling traceability, circular economy incentives).
+Built for the [IEEE ClimateChain Global Hackathon](https://ieee-climatechain-hack.devpost.com/), **Track 3: Sustainable Supply Chains**.
 
-- **Code:** https://github.com/Don-Vicks/pickpay
-- **Live program (Solana devnet):** [`47EHi4…gLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
-- **Demo video (3:16):** https://youtu.be/wqHe-604t4c (made with Remotion from real screens of the app on devnet; source in [`video/`](video/))
-- **Docs:** [architecture](docs/architecture.md) · [security and data integrity](docs/security.md) · [problem and climate impact](docs/impact.md) · [demo script](docs/video-script.md)
-- **All docs in one PDF (for judges):** [docs/PickPay-submission.pdf](docs/PickPay-submission.pdf)
+| | |
+|---|---|
+| Demo video (3 min) | https://youtu.be/wqHe-604t4c |
+| Program on Solana devnet | [`47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet) |
+| A double claim refused on-chain | [failed transaction, error 6004 `AlreadyClaimed`](https://explorer.solana.com/tx/51yiePXZJKvFXvQvSdzht5JxMfP4JjE84U1PNfatRq7uac5GX4XtsvN1vrcnfJ5DoWuyzrDBGqrzBLmX2aYQf7pJ?cluster=devnet) |
+| Docs | [Architecture](docs/architecture.md) · [Security and data integrity](docs/security.md) · [Problem and climate impact](docs/impact.md) |
+| All docs as one PDF | [docs/PickPay-submission.pdf](docs/PickPay-submission.pdf) |
 
 ## The problem
 
-- **Plastic leaks because collecting it doesn't pay fast enough.** Nigeria generates about 2.5 million tonnes of plastic waste a year, Lagos about 870,000 tonnes ([ThisDay, 2024](https://www.thisdaylive.com/2024/02/22/hazards-of-plastic-waste-in-nigeria/)). Lagos collects 48% of its municipal waste and recovers 8% for recycling ([UN-Habitat and LAWMA, 2021 survey](https://www.africancleancities.org/sites/default/files/2023-06/facsheet-lagos.pdf)). Informal pickers do much of that collecting and are paid in cash, late, by weight that nobody records.
-- **Producers now have to prove recovery.** Nigeria's National Environmental (Plastic Waste Control) Regulations 2026 put extended producer responsibility (EPR) at the centre: producers and importers are answerable for recovering what they put on the market, and PET packaging must reach 25% recycled content by January 2028 ([ThisDay, Sept 2026](https://www.thisdaylive.com/2026/09/04/nigeria-tightens-war-on-plastic-waste-makes-producers-responsible-for-end-of-life-products/)).
-- **Today's proof is a spreadsheet.** A brand's evidence that it recovered a tonne is a report from whoever it paid. Nothing stops the same tonne being reported twice, or reported without ever reaching a recycler.
+- **Collecting plastic doesn't pay reliably.** Nigeria generates about 2.5 million tonnes of plastic waste a year, about 870,000 tonnes of it in Lagos ([ThisDay, 2024](https://www.thisdaylive.com/2024/02/22/hazards-of-plastic-waste-in-nigeria/)). Lagos collects 48% of its municipal waste and recovers 8% ([UN-Habitat and LAWMA, 2021](https://www.africancleancities.org/sites/default/files/2023-06/facsheet-lagos.pdf)). Informal pickers do much of the collecting and are paid late, in cash, on weights nobody records.
+- **Brands now have to prove recovery.** Nigeria's National Environmental (Plastic Waste Control) Regulations 2026 make producers and importers responsible for recovering the plastic they sell, and require PET packaging to contain 25% recycled PET by January 2028 ([ThisDay, Sept 2026](https://www.thisdaylive.com/2026/09/04/nigeria-tightens-war-on-plastic-waste-makes-producers-responsible-for-end-of-life-products/)).
+- **Today's proof is a spreadsheet.** A brand's evidence is a report from the collector it paid. Nothing stops the same tonne being reported to two brands, or reported without ever reaching a recycler.
 
-## What PickPay does
+## How it works
 
 ```
- picker ──bag──▶ HUB ──bale──▶ RECYCLER ──credits──▶ BRAND
-          │              │                │                 │
-   AI grade + pay    ship ≤ collected   accept ≤ shipped   claim ≤ accepted, once
-   in one tx         (ship_bale)        (confirm_intake)   (claim_credits)
- (record_collection)
+picker ──bag──▶ HUB ──bale──▶ RECYCLER ──credits──▶ BRAND
+                 │               │                    │
+       AI grade + payout     weighs what arrived    claims kilos,
+       in one transaction    and signs intake       once only
 ```
 
-1. **Hub agent** (`/hub`, on a phone): enters the picker's phone number and the scale weight, and photographs the bag. Claude vision grades the polymer (PET, HDPE, mixed) and contamination, which sets the price in ₦/kg. **Pay** records the bag on-chain and pays the picker from the hub's escrow in the same transaction. A picker with no wallet accrues a balance under a salted hash of their phone number.
-2. **Recycler** signs intake for a bale. That signature, and only that signature, creates recovery credits, never more than the bale weighed.
-2b. **Recycler** (`/recycler`) weighs the bale and confirms what arrived.
-3. **Brand** (`/brand`) retires credits against its EPR target. Once retired, they're gone: a second claim on the same kilos fails inside the program.
-4. **Anyone** (`/ledger`) can trace a brand's claim through the recycler's intake and the bale down to each paid bag, with its grade, payout and photo hash.
+1. **Collect (hub, `/hub`).** The hub agent enters the picker's phone number and the scale weight, and photographs the bag. Claude vision grades the plastic type (PET, HDPE or mixed) and how dirty it is, which sets the price per kilo. **Pay** records the bag on Solana and pays the picker from the hub's escrow in the same transaction, confirmed in about a second. A picker without a wallet builds up a balance under a salted hash of their phone number.
+2. **Recycle (recycler, `/recycler`).** The hub ships its paid bags as a bale. The recycler weighs what arrived and signs intake. That signature is the only thing that creates recycling credits, and never more than the bale's weight.
+3. **Claim (brand, `/brand`).** A brand claims credits toward its recycling target. Claimed kilos are used up: a second claim on the same kilos is refused by the program, on-chain.
+4. **Check (anyone, `/ledger`).** A regulator, auditor or customer can open any claim and follow it back through the recycler's intake and the bale to each paid bag, with its grade, payment and photo.
 
-### The rule the chain enforces
+## What the program guarantees
 
-**collected ≥ shipped ≥ credited ≥ claimed**, checked by the program on every instruction:
+Every instruction keeps one rule: **collected ≥ shipped ≥ credited ≥ claimed**.
 
-| Instruction | Signed by | Fails with |
+| Instruction | Signed by | Refuses |
 |---|---|---|
-| `record_collection` | hub | `ZeroWeight`, `ContaminationOutOfRange`, account-in-use for a reused photo |
-| `ship_bale` | hub | `ExceedsCollected` |
-| `confirm_intake` | the bale's named recycler | `ExceedsIntake`, `WrongRecycler`, account-in-use for a second intake |
-| `claim_credits` | brand | `AlreadyClaimed` |
+| `record_collection` | hub | zero weight (`ZeroWeight`), contamination out of range (`ContaminationOutOfRange`), a payout account on the wrong mint (`WrongMint`), a photo already used for another bag |
+| `ship_bale` | hub | shipping more than was collected (`ExceedsCollected`) |
+| `confirm_intake` | the recycler named on the bale | accepting more than the bale weighed (`ExceedsIntake`), any other signer (`WrongRecycler`), a second intake for the same bale |
+| `claim_credits` | brand | claiming kilos that are already claimed (`AlreadyClaimed`) |
 
-## What's new here
+These rules hold whatever the app server or the AI does. The program has 11 LiteSVM tests that cover each of them. See [docs/security.md](docs/security.md) for the threat model and what is not yet protected, such as a hub and a recycler colluding.
 
-- **Credits are created by the recycler, not the collector.** Collection data alone never mints anything; a credit needs a recycler's signature on the bale it came from.
-- **One claim per kilo, enforced by the program.** Brands, aggregators and regulators read the same accounts, so a tonne can't count toward two targets.
-- **The picker is paid in the same transaction that records the bag.** Payment and evidence can't drift apart.
-- **AI sets the price, and is checked.** The grade decides ₦/kg; the server signs the quote it computed, so a tampered request can't change the amount; reused photos are blocked before grading.
-- **No database.** Every screen reads Solana accounts. The hub keeps only the photos, and the ledger shows a photo as verified only when its SHA-256 matches the hash on-chain.
+## What makes it different
 
-## Try it
+- **The recycler creates the credit, not the collector.** Collection data alone never creates a credit.
+- **One claim per kilo.** Brands, auditors and regulators read the same accounts, so a tonne can't count toward two targets.
+- **Payment and record can't drift apart.** The picker is paid in the same transaction that records the bag.
+- **AI sets the price, and the server checks it.** The server signs the quote it computed, so a tampered request can't change the amount. A reused photo, even resized or recompressed, is blocked before the AI is asked.
+- **No database.** Every screen reads Solana accounts. The hub keeps only the bag photos, and the ledger marks a photo as verified only when its SHA-256 matches the hash stored on-chain.
 
-| Screen | What to do |
-|---|---|
-| `/` | How it works in three steps, with live totals |
-| `/hub` (step 1) | Grade a bag photo and pay the picker; the confirmed transaction links to the explorer |
-| `/recycler` (step 2) | The hub sends its paid bags as a bale; the recycler weighs and confirms what arrived |
-| `/brand` (step 3) | Claim as Brand A, then claim the same kilos as Brand B and watch the blockchain refuse |
-| `/ledger` | Open any claim and follow it back to the bags |
+## Run it
 
-Run locally (macOS or Linux, Node 24, pnpm, Anchor 1.2, Agave 3.1):
+Needs macOS or Linux, Node 24, pnpm, Rust, Anchor 1.2, the Agave 3.1 Solana CLI with a funded devnet wallet, and an Anthropic API key.
 
 ```bash
-pnpm install && pnpm setup:devnet        # devnet actors + test-USDC mint (funds from your Solana CLI wallet)
-pnpm smoke:devnet                        # creates the demo hub and funds its escrow
-cd app && cp .env.example .env.local     # add ANTHROPIC_API_KEY
-pnpm install && pnpm dev                 # http://localhost:3000/hub
+# Program: build and run the 11 LiteSVM tests (always --arch v1: Anchor 1.2 defaults to SBPF v3)
+anchor build --arch v1 && cargo test
+
+# Devnet: create the hub, recycler and brand wallets and a test-USDC mint, then the demo hub and its escrow
+pnpm install
+pnpm setup:devnet
+pnpm smoke:devnet --init-only
+
+# App
+cd app
+cp .env.example .env.local   # add ANTHROPIC_API_KEY
+pnpm install
+pnpm dev                     # http://localhost:3000
+pnpm test                    # pricing and perceptual-hash unit tests
+
+# Optional, from the repo root with the app running: replay the demo bags, bale, intake and Brand A's claim
+pnpm seed:demo
 ```
 
-### Real vs mocked
+Then open `/hub` to grade and pay a bag, `/recycler` to ship and confirm a bale, `/brand` to claim as Brand A and then watch Brand B's claim on the same kilos get refused, and `/ledger` to trace a claim.
 
-- **Real:** the Anchor program and its 11 LiteSVM tests; every payout, bale, intake and claim on devnet; Claude vision grading; the perceptual-hash duplicate check; the public ledger.
-- **Demo stand-ins:** test USDC instead of USDC or naira; one hub, one recycler and two brands whose keys the demo server holds; scale weight typed in rather than read from a scale; no withdrawal flow yet for pickers' phone-hash balances; no naira off-ramp or USSD.
+After changing the program, run `pnpm generate:client` to regenerate the TypeScript client in `app/src/generated/pickpay`.
 
-## Roadmap
+## What's real and what's a demo stand-in
 
-1. **Pilot (months 1–3):** one Lagos collection hub and one PET recycler, real USDC payouts with a naira off-ramp, a picker withdrawal flow and USSD for feature phones.
-2. **Brands (months 3–6):** producer-responsibility organisations and brands claim credits for EPR reporting; monthly public reports generated from the ledger.
-3. **Network (months 6–12):** more hubs and recyclers, staked hubs whose bags a recycler can dispute, connected scales that sign weights, and the same attestation pattern for other waste streams.
+- **Real:** the Anchor program on devnet; every payout, bale, intake and claim as a devnet transaction; Claude vision grading; the perceptual-hash duplicate check; the public ledger.
+- **Demo stand-ins:**
+  - Payouts use a test USDC token instead of USDC or naira.
+  - There is one hub, one recycler and two brands, and the demo server holds their keys. In production each party signs on its own device.
+  - The scale weight is typed in rather than read from a connected scale.
+  - Pickers can't yet withdraw a phone-number balance, and there's no naira off-ramp or USSD.
 
-Details in [docs/impact.md](docs/impact.md).
+## Repository
 
----
-
-## MVP
-
-- [x] Anchor program on devnet with `init_hub`, `record_collection` (pays the picker in the same transaction), `ship_bale`, `confirm_intake` (recycler-signed, mints credits) and `claim_credits`; errors `ExceedsCollected`, `ExceedsIntake`, `AlreadyClaimed`; LiteSVM tests for each
-- [x] Devnet USDC-style SPL payout from hub escrow, with a claimable account keyed by a phone hash for pickers without wallets
-- [x] AI grading: Claude vision returns polymer (PET/HDPE/mixed) and contamination %, which set ₦/kg; a perceptual-hash check rejects reused photos
-- [x] Hub screen (mobile web): phone, weight, photo → grade → pay
-- [x] Public ledger page: brand claim → credits → intake → bales → bags (photo hash, grade)
-- [x] Seed script: hub, recycler, two brands and real bag photos (4 openly licensed Commons photos, credited in `app/seed-photos/CREDITS.md`), so the demo replays the same way every time
+| Path | What's there |
+|---|---|
+| `programs/pickpay/` | Anchor program (Rust) and its LiteSVM tests |
+| `app/` | Next.js app: hub, recycler, brand and ledger screens, plus the API routes |
+| `scripts/` | Devnet setup, smoke test, demo seed, client generation, PDF build |
+| `docs/` | Architecture, security, impact, the submission PDF, the video script |
+| `video/` | Remotion source for the demo video |
 
 ## Stack
 
-- **Program:** Anchor 1.2 (Rust), LiteSVM tests, Solana devnet, SPL Token
-- **App:** Next.js 15 (App Router), React 19, TypeScript, Tailwind, pnpm (`app/`)
+- **Program:** Anchor 1.2 (Rust), SPL Token, LiteSVM tests, Solana devnet
+- **App:** Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
 - **Client:** `@solana/kit` with a Codama-generated client from the program's IDL
-- **AI:** Claude vision via `@anthropic-ai/sdk` (key in `app/.env.local`, never committed)
-- **Photos:** `sharp` for perceptual hashes; paid photos in `app/.data/` on the hub; no database, the chain is the store
+- **AI:** Claude vision (`claude-haiku-5-5`) through `@anthropic-ai/sdk`
+- **Photos:** `sharp` for perceptual hashes; photos are stored on the hub, only their hashes go on-chain
 
-## Devnet
+## Devnet addresses
 
-- Program: [`47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz`](https://explorer.solana.com/address/47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz?cluster=devnet)
-- Demo hub: `BiYZ3y3vNcHL4nRZBmBmpwnnLhMCY1TC2UqrSDWduSXp`, escrow `6ifasar11sHwUbKoKiV4kbo9w2yz1HNwTNuB3SuJN4SS` (fresh hub for the demo; the earlier test hub `Gm7y…yU2i` is still on devnet but not shown)
-- tUSDC mint: `664ePnGgSywRELeAz2davzvyBAAyg1qewfFT7AfQxgeC`
-- First paid bag (test hub): [`4N75Qo…Cku3`](https://explorer.solana.com/tx/4N75QorLLsxuvhXKLQAKyZCvSEYvLFTVSFpPuM84b58BebCpJ5SWQko3KQLdQg5GJHLNzfaRUjYP7NdDAnbyCku3?cluster=devnet)
-- A double claim rejected by the program: [`51yieP…f7pJ`](https://explorer.solana.com/tx/51yiePXZJKvFXvQvSdzht5JxMfP4JjE84U1PNfatRq7uac5GX4XtsvN1vrcnfJ5DoWuyzrDBGqrzBLmX2aYQf7pJ?cluster=devnet)
+- Program: `47EHi4xhP3o6T7TUsMVRNMse4Xdcs1zRHLXxSpncgLTz`
+- Demo hub: `BiYZ3y3vNcHL4nRZBmBmpwnnLhMCY1TC2UqrSDWduSXp`, escrow `6ifasar11sHwUbKoKiV4kbo9w2yz1HNwTNuB3SuJN4SS`
+- Test USDC mint: `664ePnGgSywRELeAz2davzvyBAAyg1qewfFT7AfQxgeC`
 
-## Run
+## What's next
 
-```bash
-anchor build --arch v1 && cargo test  # program + LiteSVM tests (always --arch v1)
-pnpm install && pnpm setup:devnet   # devnet actors + tUSDC mint (idempotent; funds from your Solana CLI wallet)
-pnpm generate:client                # IDL → app/src/generated/pickpay (after anchor build)
-pnpm smoke:devnet                   # init hub, fund escrow, pay one bag on devnet
-pnpm seed:demo                      # with the app running: grade + pay app/seed-photos, intake, Brand A claim
-cd app && pnpm install && pnpm dev  # http://localhost:3000
-cd app && pnpm test                 # pricing + perceptual-hash unit tests
-cd video && pnpm install && pnpm render  # demo video from video/public/shots (pnpm capture re-records them from the running app)
-```
+1. **Pilot, months 1–3:** one Lagos hub and one PET recycler, real USDC payouts with a naira off-ramp, picker withdrawals and USSD for feature phones.
+2. **Brands, months 3–6:** producer-responsibility organisations and brands claim credits for their reporting; monthly public reports come straight from the ledger.
+3. **Network, months 6–12:** more hubs and recyclers, staked hubs whose bales a recycler can dispute, and connected scales that sign weights.
 
-## Plan
-
-Deadline: **Sun 2026-10-25 15:00 WAT** (Devpost). Submit by 13:00 WAT.
-
-### M1 · Day 1 (2026-10-23): Scaffold
-- [x] Anchor workspace and Next.js app in `app/`, both build
-- [x] Make the template LiteSVM test pass (Anchor 1.2 defaults to SBPF v3, which LiteSVM 0.10 can't load; build with `--arch v1` on Agave 3.1.14)
-- [x] Devnet wallets (hub, recycler, brand A, brand B, picker) funded, plus a devnet test-USDC mint, saved by `scripts/setup-devnet.ts` (`pnpm setup:devnet`; addresses in `scripts/devnet.json`, keys in `.keys/`)
-
-### M2 · Day 2 (2026-10-24): Program core
-- [x] State accounts: Hub (collected/shipped g, escrow), Collection, Picker (phone-hash claim balance), PhotoSeal (one per photo hash), Bale, CreditBatch, Claim
-- [x] `init_hub` and `record_collection` with an SPL transfer payout to the picker (or to a phone-hash claim account); 6 LiteSVM tests incl. duplicate photo and wrong mint
-- [x] `ship_bale` (≤ unshipped collected kg), `confirm_intake` (recycler signer, ≤ bale kg, mints credits), `claim_credits` (single retirement)
-- [x] LiteSVM tests: happy path, `ExceedsCollected`, `ExceedsIntake`, `AlreadyClaimed` (plus wrong recycler and double intake; 11 tests total)
-- [x] Deploy to devnet and generate the TS client into `app/` (`pnpm generate:client` → `app/src/generated/pickpay`; `pnpm smoke:devnet` pays a picker on devnet)
-
-### M3 · Day 2 (2026-10-24): Wow moment
-- [x] `/api/grade`: Claude vision → polymer and contamination → ₦/kg and USDC amount (live on real photos: PET, HDPE and mixed graded and paid; a non-plastic image is rejected; garden waste in plastic sacks grades as very dirty mixed plastic)
-- [x] Hub screen: phone, weight, photo → grade → "Pay" sends `record_collection` and shows the confirmed transaction (`/hub` + `/api/collect`; Pay verified on devnet in 0.8 s)
-- [x] Brand screen: claim credits; a second brand claiming the same credits shows the live `AlreadyClaimed` rejection (`/brand`; the rejected claim lands on devnet as a failed tx, error 6004)
-
-### M4 · Day 2 (2026-10-24): Ledger and fraud (scope freeze 22:00 WAT)
-- [x] Perceptual-hash duplicate-photo check that blocks a reused photo (64-bit dHash via sharp, ≤10 bits = same photo; checked in `/api/grade` before the AI call and again in `/api/collect`; index in `app/.data/`, exact SHA-256 still sealed on-chain)
-- [x] Public ledger page `/ledger/[claim]` tracing claim → credits → intake → bales → bags (all from devnet accounts; `/ledger` lists claims; hub photos shown only when their SHA-256 matches the chain)
-- [x] Seed script replays the full demo on devnet (`pnpm seed:demo`: grade → pay → intake → Brand A claims 60%; `--dry-run`, `--base`; see `app/seed-photos/README.md`)
-- [x] Real bag photos in `app/seed-photos/` and `pnpm seed:demo` run on devnet (openly licensed photos to save API credits: 4 bags paid, 1 rejected, Brand A retired 13.7 kg; the Ikeja photo was later dropped because it shows people, so bag #8 shows no photo; `app/demo-photos/` holds an unused photo for the video)
-
-### M5 · Day 3 (2026-10-25): Judge docs (by 11:00 WAT)
-- [x] Judge-facing README: problem, how it works, what's new, how to run (on its own merit, no competitor table)
-- [x] Architecture diagram and technical spec (`docs/architecture.md`)
-- [x] Security and data-integrity assessment (`docs/security.md`): threat model, including the limit that a hub can lie about weight and how intake caps it
-- [x] 2-page problem and impact statement with cited CO2e figures, plus adoption and scalability roadmap (`docs/impact.md`)
-
-### M6 · Day 3 (2026-10-25): Submit (by 13:00 WAT)
-- [x] 3-minute video script (`docs/video-script.md`): grade and payout by 1:45, then the rejected double claim
-- [x] Record the video (`video/`, Remotion from real devnet screens, with an original soundtrack: `video/out/pickpay-demo.mp4`, 3:12)
-- [x] Record the voiceover from `docs/voiceover.md` and mix it in (`video/out/pickpay-demo-voice.mp4`, 3:15)
-- [x] Upload the video (YouTube, unlisted: https://youtu.be/wqHe-604t4c) and add its link to the README and `docs/devpost.md`
-- [x] Devpost text: track alignment, problem, solution, users, scale, adoption (`docs/devpost.md`)
-- [x] Make the repo public (https://github.com/Don-Vicks/pickpay)
-- [x] Submit on Devpost
-
-## Submission checklist
-
-- [x] Track stated (Track 3) and how the project addresses it
-- [x] Project description: problem, solution, target users, how it scales, how easily it can be adopted
-- [x] Demo video, 3–5 min (https://youtu.be/wqHe-604t4c, 3:16)
-- [x] Public GitHub repo with source and docs (https://github.com/Don-Vicks/pickpay)
-- [x] Working prototype (devnet program ID and app link or run steps)
-- [x] Architecture diagram and technical spec
-- [x] Security and data-integrity assessment
-- [x] Problem statement (≤2 pages), climate impact assessment, adoption and scalability roadmap
-- [x] Submitted before 2026-10-25 15:00 WAT
+Details are in [docs/impact.md](docs/impact.md). The plan this was built against is in [docs/build-plan.md](docs/build-plan.md).

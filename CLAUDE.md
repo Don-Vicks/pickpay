@@ -7,14 +7,14 @@
 
 ## Scope rule
 
-MVP first. Build nothing outside the README's `## MVP` list until every MVP box is ticked. No naira off-ramp, USSD, auth system or database. The chain is the store.
+MVP first. Build nothing outside the `## MVP` list in docs/build-plan.md until every MVP box is ticked. No naira off-ramp, USSD, auth system or database. The chain is the store.
 
 ## The loop
 
-1. Read README.md.
-2. Do the first unticked task under `## Plan`.
+1. Read README.md and docs/build-plan.md.
+2. Do the first unticked task under `## Plan` in docs/build-plan.md.
 3. Run it to prove it works (`anchor build --arch v1 && cargo test` for the program, always `--arch v1` because Anchor 1.2 defaults to SBPF v3, which LiteSVM 0.10 rejects; deploy with the same build; `pnpm dev` / `pnpm build` in `app/` for the app).
-4. Tick it in README.md.
+4. Tick it in docs/build-plan.md.
 5. Commit with a conventional message (`feat:`, `fix:`, `docs:`, `test:`).
 
 ## Layout
